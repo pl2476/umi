@@ -28,26 +28,17 @@ export default function(context, opts = {}) {
   const plugins = [
     require.resolve('babel-plugin-react-require'),
     require.resolve('@babel/plugin-syntax-dynamic-import'),
-    [
-      require.resolve('@babel/plugin-proposal-object-rest-spread'),
-      { loose, useBuiltIns },
-    ],
+    [require.resolve('@babel/plugin-proposal-object-rest-spread'), { loose, useBuiltIns }],
     require.resolve('@babel/plugin-proposal-optional-catch-binding'),
     require.resolve('@babel/plugin-proposal-async-generator-functions'),
 
     // 下面两个的顺序的配置都不能动
     [require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }],
-    [
-      require.resolve('@babel/plugin-proposal-class-properties'),
-      { loose: true },
-    ],
+    [require.resolve('@babel/plugin-proposal-class-properties'), { loose: true }],
 
     require.resolve('@babel/plugin-proposal-export-namespace-from'),
     require.resolve('@babel/plugin-proposal-export-default-from'),
-    [
-      require.resolve('@babel/plugin-proposal-nullish-coalescing-operator'),
-      { loose },
-    ],
+    [require.resolve('@babel/plugin-proposal-nullish-coalescing-operator'), { loose }],
     [require.resolve('@babel/plugin-proposal-optional-chaining'), { loose }],
     [
       require.resolve('@babel/plugin-proposal-pipeline-operator'),
@@ -58,18 +49,14 @@ export default function(context, opts = {}) {
     require.resolve('@babel/plugin-proposal-do-expressions'),
     require.resolve('@babel/plugin-proposal-function-bind'),
     require.resolve('babel-plugin-macros'),
+    [require.resolve('@babel/plugin-transform-destructuring'), { loose: false }],
   ];
 
   if (nodeEnv !== 'test' && transformRuntime) {
-    plugins.push([
-      require.resolve('@babel/plugin-transform-runtime'),
-      transformRuntime,
-    ]);
+    plugins.push([require.resolve('@babel/plugin-transform-runtime'), transformRuntime]);
   }
   if (nodeEnv === 'production') {
-    plugins.push(
-      require.resolve('babel-plugin-transform-react-remove-prop-types'),
-    );
+    plugins.push(require.resolve('babel-plugin-transform-react-remove-prop-types'));
   }
 
   return {

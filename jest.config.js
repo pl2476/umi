@@ -1,4 +1,7 @@
 module.exports = {
+  moduleNameMapper: {
+    '^umi/_runtimePlugin$': require.resolve('./packages/umi/lib/runtimePlugin'),
+  },
   testPathIgnorePatterns: [
     '/.git/',
     '/node_modules/',
@@ -10,7 +13,6 @@ module.exports = {
     '/packages/umi-build-dev/src/routes/fixtures',
     '/packages/umi-plugin-dva/src/fixtures',
     '/packages/umi-utils/src/fixtures',
-    '/packages/umi-library/src/fixtures',
     '/packages/umi/test/fixtures',
   ],
   setupFilesAfterEnv: ['./jasmine.js'],
@@ -20,7 +22,6 @@ module.exports = {
     '/packages/umi-build-dev/src/fixtures',
     '/packages/umi-build-dev/src/routes/fixtures',
     '/packages/umi-build-dev/src/plugins/commands/generate/generators',
-    '/packages/umi-library/src/fixtures',
     '/packages/umi-utils/src/fixtures',
     '/packages/umi/test/fixtures',
   ],

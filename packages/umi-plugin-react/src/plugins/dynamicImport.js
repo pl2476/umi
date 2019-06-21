@@ -9,10 +9,10 @@ export default function(api, options) {
     process.env.CODE_SPLITTING_LEVEL = options.level;
   }
 
-  api.modifyAFWebpackOpts(opts => {
+  api.modifyAFWebpackOpts((memo, opts = {}) => {
     return {
-      ...opts,
-      disableDynamicImport: false,
+      ...memo,
+      disableDynamicImport: !!opts.ssr,
     };
   });
 
@@ -28,7 +28,7 @@ export default function(api, options) {
           join(paths.absSrcPath, options.loadingComponent),
         )}').default`;
       } else {
-        loadingOpts = `, loading: require('${options.loadingComponent.trim()}').default`;        
+        loadingOpts = `, loading: require('${options.loadingComponent.trim()}').default`;
       }
     }
 
@@ -36,6 +36,6 @@ export default function(api, options) {
     if (options.webpackChunkName) {
       extendStr = `/* webpackChunkName: ^${webpackChunkName}^ */`;
     }
-    return `dynamic({ loader: () => import(${extendStr}'${importPath}')${loadingOpts} })`;
+    return `__IS_BROWSER ? dynamic({ loader: () => import(${extendStr}'${importPath}')${loadingOpts} }) : require('${importPath}').default`;
   });
 }

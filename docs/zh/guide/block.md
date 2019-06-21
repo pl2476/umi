@@ -9,24 +9,58 @@
 在项目根目录使用如下命令可以添加一个区块到到你的项目中：
 
 ```bash
-$ umi block add [block url]
+$ umi block add [block url]  --path=[target path]
 ```
 
 其中 `[block url]` 可以是一个 Github 或者 Gitlab 地址，也可以是一个 Git 仓库地址，也可以是一个本地相对或者绝对路径。只要对应的路径下是一个区块的代码，满足 umi 区块的规范，那么 umi 就可以通过该命令将区块的代码下载到你的项目中。
 
+`[target path]` 是你要把区块添加到的路径。如果已经这个路径下已经存在路由组件，那么 umi 会把区块添加到它里面。如果没有那么 umi 会先创建一个路由组件，然后再把区块添加进去。
+
 比如，你可以运行：
 
 ```bash
-$ umi block add https://github.com/umijs/umi-blocks/tree/master/blank
+$ umi block add https://github.com/umijs/umi-blocks/tree/master/demo
 ```
 
-来将官方的区块仓库中的 blank 区块下载到你的项目本地。对于[官方区块仓库](https://github.com/umijs/umi-blocks)下的区块你可以使用更加简洁的命令，比如 `umi block add blank` 来下载区块。
+来将官方的区块仓库中的 demo 区块下载到你的项目本地。对于[官方区块仓库](https://github.com/umijs/umi-blocks)下的区块你可以使用更加简洁的命令，比如 `umi block add demo` 来下载区块。
 
-如果你的项目正在本地调试，那么区块下载到项目中后你就可以访问相应的路径来查看效果了。区块代码会被默认下载到 pages/[name] 下面，其中 name 是默认取区块中的 `package.json` 中的 name字段（会去掉`/`前的无效片段）。对于配置式路由，我们也会默认添加路由配置到你的配置中，所以也一样可以直接访问。
+如果你的项目正在本地调试，那么区块下载到项目中后你就可以访问相应的路径来查看效果了。区块代码会被默认下载到 pages/[name] 下面，其中 name 是默认取区块中的 `package.json` 中的 name 字段（会去掉`/`前的无效片段）。对于配置式路由，我们也会默认添加路由配置到你的配置中，所以也一样可以直接访问。
 
 你可以通过 `umi help block` 来查看支持的更多配置。
 
 需要注意的是，区块只是用于开发时新建页面时的提效工具，一般来说区块要实际应用都需要针对项目需求去修改最后的代码，之后的维护都将和普通页面一样由开发者来维护，不存在区块更新的说法。
+
+区块会优先使用 config.js 的 block 属性配置。在 Pro 中有这样一个配置，执行`npx umi block add DashboardAnalysis`会从 `https://github.com/ant-design/pro-blocks` 这个仓库的去寻找 `DashboardAnalysis` 区块。
+
+```js
+ block: {
+    defaultGitUrl: 'https://github.com/ant-design/pro-blocks',
+  },
+```
+
+### 使用 js 的区块
+
+在新的版本中我们加入了 TypeScript 转化为 JavaScript 的功能,你可以在下载区块的时候添加 --js 参数。示例如下：
+
+```bash
+npx umi block add DashboardAnalysis --js
+```
+
+### 使用其他包管理工具
+
+区块支持通过参数自定义包安装工具，默认使用 npm ，如果你的项目中有 yarn.lock 文件，我们将会使用 yarn 。如果你想使用 cnpm 或者 tnpm 可以通过如下命令使用
+
+```bash
+npx umi block add DashboardAnalysis --npm-client cnpm
+```
+
+在某些时候可能访问 npm 的官方源速度会很慢，block 会默认切换 官方源和淘宝源。保证最后的速度，如果你要使用自定义源可以这样使用
+
+```bash
+ npx umi block add DashboardAnalysis  --registry myregistryUrl
+```
+
+> 注：在 umi 2.7 之前，同一个路径下只能添加一个区块，区块会作为整个页面的代码添加到你的项目中。在 2.7 及它之后我们支持重复添加区块，或者添加到当前项目中已有的页面中。对于原因的区块你可以通过在区块的 `package.json` 中配置 `blockConfig.specVersion` 为 `0.1` 来兼容或者通过 `--mode` 来指定添加的方式。
 
 ## 区块开发
 
@@ -45,17 +79,16 @@ $ yarn create umi --block
   - src              // 区块的代码
     - index.js       // 区块入口，需要默认导出一个 React 组件
     - _mock.js       // 约定的 mock 文件
-  - @                // 区块依赖的一些需要放到项目 src 下的内容（通常不推荐采用）
   - package.json     // 区块依赖等信息
   - .umirc.js        // 基于 umi 开发区块时的配置
-  - thumb.[png|jpg]  // 物料的缩略图
+  - thumb.[png|jpg]  // 区块的缩略图
 ```
 
 其中 package.json 文件相关内容如下：
 
 ```js
 {
-  name: '@umi-blocks/blank',
+  name: '@umi-blocks/demo',
   description: '区块描述',
   // ... 更多其他 npm 包的相关定义
   dependencies: {
@@ -101,11 +134,14 @@ $ yarn create umi --block
 ```js
 export default {
   plugins: [
-    ['umi-plugin-block-dev', {
-      layout: 'ant-design-pro',
-    }],
+    [
+      'umi-plugin-block-dev',
+      {
+        layout: 'ant-design-pro',
+      },
+    ],
   ],
-}
+};
 ```
 
 该插件会将区块的 src 目录作为 umi 的 pages 目录，这样你就可以在区块根目录下通过 `umi dev` 来开发调试区块了。

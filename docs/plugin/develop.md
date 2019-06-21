@@ -304,6 +304,13 @@ Before dev server start.
 
 After dev server start.
 
+```js
+api.afterDevServer(({serve, devServerPort}) => {
+  // You can get the actual port number of the service monitor here.
+  console.log(devServerPort);
+});
+```
+
 ### onStart
 
 Triggered when `umi dev` or `umi build` start.
@@ -331,6 +338,16 @@ export default (api, defaultOpts = { immer: false }) => {
 };
 ```
 
+### beforeBuildCompileAsync
+
+Before Umi call `af-webpack/build` for a compilation
+
+```js
+api.beforeBuildCompileAsync(async () => {
+  yield delay(1000);
+});
+```
+
 ### onBuildSuccess
 
 When the `umi build` was successful. Mainly do some processing of the construction products.
@@ -347,7 +364,7 @@ The async version of onBuildSuccess.
 
 ```js
 api.onBuildSuccessAsync(async ({ stats }) => {
-  yield delay(1000);
+  await delay(1000);
   console.log(stats);
 });
 ```
@@ -373,7 +390,7 @@ api.onPatchRoute({ route } => {
   // route:
   // {
   //   path: '/xxx',
-  //   Routes: [] 
+  //   Routes: []
   // }
 })
 ```
@@ -577,6 +594,37 @@ Wrapper a component outside the <App/>.
 ### addRendererWrapperWithModule
 
 Excute a module before mount <App/>.
+
+## addUmiExports
+
+import from 'umi'
+
+```js
+// export all
+// genarate:export * from 'dva';
+api.addUmiExports([
+  {
+    exportAll: true,
+    source: 'dva'
+  },
+]);
+// export certain
+// genarate:export { connect } from 'dva';
+api.addUmiExports([
+  {
+    specifiers: ['connect'],
+    source: 'dva',
+  },
+]);
+// support alias
+// genarate:export { default as dva } from 'dva';
+api.addUmiExports([
+  {
+    specifiers: [{ local: 'default', exported: 'dva' }],
+    source: 'dva',
+  },
+]);
+```
 
 ### modifyEntryRender
 

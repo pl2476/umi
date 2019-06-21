@@ -8,8 +8,8 @@ sidebarDepth: 2
 
 ### plugins
 
-* 类型：`Array`
-* 默认值：`[]`
+- 类型：`Array`
+- 默认值：`[]`
 
 配置插件列表。
 
@@ -34,10 +34,13 @@ export default {
 export default {
   plugins: [
     // 有参数
-    ['umi-plugin-react', {
-      dva: true,
-      antd: true,
-    }],
+    [
+      'umi-plugin-react',
+      {
+        dva: true,
+        antd: true,
+      },
+    ],
     './plugin',
   ],
 };
@@ -45,8 +48,8 @@ export default {
 
 ### routes
 
-* 类型：`Array`
-* 默认值：`null`
+- 类型：`Array`
+- 默认值：`null`
 
 配置路由。
 
@@ -74,8 +77,8 @@ export default {
 
 ### disableRedirectHoist
 
-* 类型：`Boolean`
-* 默认值：`false`
+- 类型：`Boolean`
+- 默认值：`false`
 
 禁用 redirect 上提。
 
@@ -89,8 +92,8 @@ export default {
 
 ### history
 
-* 类型：`String | [String, Object]`
-* 默认值：`browser`
+- 类型：`String | [String, Object]`
+- 默认值：`browser`
 
 指定 history 类型，可选 `browser`、`hash` 和 `memory`。
 
@@ -104,65 +107,65 @@ export default {
 
 ### outputPath
 
-* 类型：`String`
-* 默认值：`./dist`
+- 类型：`String`
+- 默认值：`./dist`
 
 指定输出路径。
 
 ### base
 
-* 类型：`String`
-* 默认值：`/`
+- 类型：`String`
+- 默认值：`/`
 
 指定 react-router 的 base，部署到非根目录时需要配置。
 
 ### publicPath
 
-* 类型：`String`
-* 默认值：`/`
+- 类型：`String`
+- 默认值：`/`
 
 指定 webpack 的 publicPath，指向静态资源文件所在的路径。
 
 ### runtimePublicPath
 
-* 类型：`Boolean`
-* 默认值：`false`
+- 类型：`Boolean`
+- 默认值：`false`
 
 值为 `true` 时使用 HTML 里指定的 `window.publicPath`。
 
 ### cssPublicPath <Badge text="2.2.5+"/>
 
-* 类型：`String`
-* 默认值：同 publicPath
+- 类型：`String`
+- 默认值：同 publicPath
 
 为 CSS 指定额外的 publicPath 。
 
 ### mountElementId
 
-* 类型：`String`
-* 默认值：`root`
+- 类型：`String`
+- 默认值：`root`
 
 指定 react app 渲染到的 HTML 元素 id。
 
 ### minimizer
 
-* 类型：`String`
-* 默认值：`uglifyjs`
-* 选项：`uglifyjs|terserjs`
+- 类型：`String`
+- 默认值：`uglifyjs`
+- 选项：`uglifyjs|terserjs`
 
 Which minimizer to use. UglifyJS does not support es6 while [terser](https://github.com/terser-js/terser) does.
 
 ### hash
 
-* Type: `Boolean`
-* Default: `false`
+- Type: `Boolean`
+- Default: `false`
 
 是否开启 hash 文件后缀。
 
 ### targets <Badge text="2.1.0+"/>
 
-* Type: `Object`
-* Default: `{ chrome: 49, firefox: 45, safari: 10, edge: 13, ios: 10 }`
+- Type: `Object`
+- Default: `{ chrome: 49, firefox: 45, safari: 10, edge: 13, ios: 10 }`
 
 配置浏览器最低版本，会自动引入 polyfill 和做语法转换，配置的 targets 会和合并到默认值，所以不需要重复配置。
 
@@ -178,15 +181,15 @@ export default {
 
 ### context
 
-* 类型：`Object`
-* 默认值：`{}`
+- 类型：`Object`
+- 默认值：`{}`
 
 配置全局 context，会覆盖到每个 pages 里的 context。
 
 ### exportStatic
 
-* 类型：`Boolean | Object`
-* 默认值：`false`
+- 类型：`Boolean | Object`
+- 默认值：`false`
 
 如果设为 `true` 或 `Object`，则导出全部路由为静态页面，否则默认只输出一个 index.html。
 
@@ -198,33 +201,33 @@ export default {
 
 ### exportStatic.htmlSuffix
 
-* 类型：`Boolean`
-* 默认值：`false`
+- 类型：`Boolean`
+- 默认值：`false`
 
 启用 `.html` 后缀。
 
 ### exportStatic.dynamicRoot
 
-* 类型：`Boolean`
-* 默认值：`false`
+- 类型：`Boolean`
+- 默认值：`false`
 
 部署到任意路径。
 
 ### singular
 
-* 类型：`Boolean`
-* 默认值：`false`
+- 类型：`Boolean`
+- 默认值：`false`
 
 如果设为 `true`，启用单数模式的目录。
 
-* src/layout/index.js
-* src/page
-* model（如果有开启 umi-plugin-dva 插件的话）
+- src/layout/index.js
+- src/page
+- model（如果有开启 umi-plugin-dva 插件的话）
 
 ### mock.exclude <Badge text="2.4.5+"/>
 
-* 类型：`Array` of `String`
-* 默认值：`[]`
+- 类型：`Array` of `String`
+- 默认值：`[]`
 
 排除 mock 目录下不作 mock 处理的文件。
 
@@ -233,13 +236,68 @@ export default {
 ```js
 export default {
   mock: {
-    exclude: [
-      'mock/**/_*.js',
-      'mock/_*/**/*.js',
-    ],
-  }
+    exclude: ['mock/**/_*.js', 'mock/_*/**/*.js'],
+  },
+};
+```
+
+### block <Badge text="2.7.0+"/>
+
+- 类型: `Object`
+- 默认值: `{ defaultGitUrl: "https://github.com/umijs/umi-blocks" }`
+
+```js
+export default {
+  block: {
+    defaultGitUrl: 'https://github.com/ant-design/pro-blocks',
+    npmClient: 'cnpm', // 优先级低于 umi block add [block] --npm-client
+  },
+};
+```
+
+### ssr <Badge text="beta" type="warn"/> <Badge text="2.8.0+"/>
+
+- 类型: `Boolean | Object`
+- 默认值: `false`
+
+用于服务端渲染（Server-Side Render）。
+
+开启后，生成客户端静态文件的同时，也会生成 `umi.server.js` 文件。
+
+```js
+export default {
+  ssr: true,
+  // need enable
+  manifest: {},
+};
+```
+
+在 Node.js 中使用如下：
+
+```js
+// 根据 ctx.req.url 路径，返回渲染后的 html 片段
+async function UmiServerRender(ctx) {
+  // mock 一个 window 对象
+  global.window = {};
+  // 引入模块
+  const serverRender = require('./dist/umi.server');
+  // 提供 react-dom/server，避免 React hooks ssr 报错
+  const { ReactDOMServer } = serverRender;
+
+  const {
+    // 当前路由元素
+    rootContainer,
+    // 文档 html 元素 = 路由元素 + html 模板元素
+    htmlElement,
+  } = await serverRender.default(ctx);
+
+  // 元素渲染成 html
+  const ssrHtml = ReactDOMServer.renderToString(htmlElement);
+  return ssrHtml;
 }
 ```
+
+[预渲染（Pre-Rendering）使用](/zh/plugin/umi-plugin-prerender.html)，[umi-example-ssr-with-egg](https://github.com/umijs/umi-example-ssr-with-egg)
 
 ## webpack
 
@@ -253,15 +311,15 @@ export default {
 chainWebpack(config, { webpack }) {
   // 设置 alias
   config.resolve.alias.set('a', 'path/to/a');
-  
+
   // 删除进度条插件
   config.plugins.delete('progress');
 }
 ```
+
 ### theme
 
-配置主题，实际上是配 less 变量。支持对象和字符串两种类型，字符串需要指向一个返回配置的文件。
-比如：
+配置主题，实际上是配 less 变量。支持对象和字符串两种类型，字符串需要指向一个返回配置的文件。比如：
 
 ```
 "theme": {
@@ -294,8 +352,7 @@ export default {
 
 ### define
 
-通过 webpack 的 DefinePlugin 传递给代码，值会自动做 `JSON.stringify` 处理。
-比如：
+通过 webpack 的 DefinePlugin 传递给代码，值会自动做 `JSON.stringify` 处理。比如：
 
 ```js
 "define": {
@@ -306,8 +363,7 @@ export default {
 
 ### externals
 
-配置 webpack 的?[externals](https://webpack.js.org/configuration/externals/)?属性。
-比如：
+配置 webpack 的?[externals](https://webpack.js.org/configuration/externals/)?属性。比如：
 
 ```js
 // 配置 react 和 react-dom 不打入代码
@@ -373,7 +429,7 @@ const config = {
       mediaQuery: false,
     }),
   ],
-}
+};
 ```
 
 ### cssModulesExcludes
@@ -397,8 +453,7 @@ const config = {
 
 ### proxy
 
-配置 webpack-dev-server 的 [proxy](https://webpack.js.org/configuration/dev-server/#devserver-proxy) 属性。
-如果要代理请求到其他服务器，可以这样配：
+配置 webpack-dev-server 的 [proxy](https://webpack.js.org/configuration/dev-server/#devserver-proxy) 属性。如果要代理请求到其他服务器，可以这样配：
 
 ```markup
 "proxy": {
@@ -418,8 +473,7 @@ const config = {
 
 ### manifest
 
-配置后会生成 asset-manifest.json，option 传给 [https://www.npmjs.com/package/webpack-manifest-plugin](https://www.npmjs.com/package/webpack-manifest-plugin)。
-比如：
+配置后会生成 asset-manifest.json，option 传给 [https://www.npmjs.com/package/webpack-manifest-plugin](https://www.npmjs.com/package/webpack-manifest-plugin)。比如：
 
 ```markup
 "manifest": {
@@ -433,7 +487,7 @@ const config = {
 
 ### lessLoaderOptions
 
-给 [less-loader](https://github.com/webpack-contrib/less-loader) 的额外配置项。 
+给 [less-loader](https://github.com/webpack-contrib/less-loader) 的额外配置项。
 
 ### cssLoaderOptions
 
@@ -443,17 +497,17 @@ const config = {
 
 配置传给 [autoprefixer](https://github.com/postcss/autoprefixer#options) 的配置项。
 
-* 类型：`Object`
-* 默认：`{ browserslist, flexbox: 'no-2019' }`
+- 类型：`Object`
+- 默认：`{ browsers: DEFAULT_BROWSERS, flexbox: 'no-2019' }`
 
 如果你想兼容旧版本 iOS Safari 的 flexbox，应该需要配置上 `flexbox: true`。
 
 ### uglifyJSOptions
 
-配置传给 [uglifyjs-webpack-plugin@1.x](https://github.com/webpack-contrib/uglifyjs-webpack-plugin/tree/version-1) 的配置项。
+配置传给 [uglifyjs-webpack-plugin@2.x](https://github.com/webpack-contrib/uglifyjs-webpack-plugin/tree/master) 的配置项。
 
-* 类型：`Object` | `Function`
-* 默认：[af-webpack/src/getConfig/uglifyOptions.js](https://github.com/umijs/umi/blob/master/packages/af-webpack/src/getConfig/uglifyOptions.js#L6)
+- 类型：`Object` | `Function`
+- 默认：[af-webpack/src/getConfig/uglifyOptions.js](https://github.com/umijs/umi/blob/master/packages/af-webpack/src/getConfig/uglifyOptions.js#L6)
 
 如果值为 `Object`，会做浅合并。
 
@@ -474,7 +528,7 @@ export default {
 ```js
 export default {
   uglifyJSOptions(opts) {
-    opts.compress.warning = true;
+    opts.uglifyOptions.compress.warning = true;
     return opts;
   },
 };
@@ -482,16 +536,13 @@ export default {
 
 ### browserslist <Badge text="deprecated"/>
 
-配置 [browserslist](https://github.com/ai/browserslist)，同时作用域 babel-preset-env 和 autoprefixer。
+配置 [browserslist](https://github.com/ai/browserslist)，同时作用于 babel-preset-env 和 autoprefixer。
 
 e.g.
 
 ```js
 export default {
-  browserslist: [
-    '> 1%',
-    'last 2 versions',
-  ],
+  browserslist: ['> 1%', 'last 2 versions'],
 };
 ```
 

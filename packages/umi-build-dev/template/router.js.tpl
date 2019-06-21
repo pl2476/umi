@@ -2,18 +2,22 @@
 import React from 'react';
 import { Router as DefaultRouter, Route, Switch } from 'react-router-dom';
 import dynamic from 'umi/dynamic';
-import renderRoutes from 'umi/_renderRoutes';
+import renderRoutes from 'umi/lib/renderRoutes';
+import history from '@tmp/history';
 {{{ imports }}}
 
-let Router = {{{ RouterRootComponent }}};
+const Router = {{{ RouterRootComponent }}};
 
-let routes = {{{ routes }}};
+const routes = {{{ routes }}};
+{{#globalVariables}}
 window.g_routes = routes;
-window.g_plugins.applyForEach('patchRoutes', { initialValue: routes });
+{{/globalVariables}}
+const plugins = require('umi/_runtimePlugin');
+plugins.applyForEach('patchRoutes', { initialValue: routes });
 
 // route change handler
 function routeChangeHandler(location, action) {
-  window.g_plugins.applyForEach('onRouteChange', {
+  plugins.applyForEach('onRouteChange', {
     initialValue: {
       routes,
       location,
@@ -21,10 +25,12 @@ function routeChangeHandler(location, action) {
     },
   });
 }
-window.g_history.listen(routeChangeHandler);
-routeChangeHandler(window.g_history.location);
+history.listen(routeChangeHandler);
+routeChangeHandler(history.location);
 
-export default function RouterWrapper() {
+export { routes };
+
+export default function RouterWrapper(props = {}) {
   return (
 {{{ routerContent }}}
   );

@@ -1,7 +1,8 @@
 .DS_Store
 tmp
 /node_modules
-/packages/*/node_modules
+/packages/**/node_modules
+/packages/**/.leagcy-dist
 /examples/*/node_modules
 package-lock.json
 /website/dist
@@ -11,6 +12,9 @@ package-lock.json
 /packages/**/node_modules/.cache
 /packages/**/.docz
 /packages/*/lib
+/packages/*/dist
+/packages/af-webpack/test/bundlestats.json
+
 dist
 coverage
 .nyc_output

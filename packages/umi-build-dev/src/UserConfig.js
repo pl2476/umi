@@ -73,10 +73,7 @@ class UserConfig {
     this.relativeFile = relativeFile;
 
     const onError = (e, file) => {
-      const msg = `配置文件 "${file.replace(
-        `${paths.cwd}/`,
-        '',
-      )}" 解析出错，请检查语法。
+      const msg = `配置文件 "${file.replace(`${paths.cwd}/`, '')}" 解析出错，请检查语法。
 \r\n${e.toString()}`;
       this.printError(msg);
       throw new Error(msg);
@@ -141,6 +138,7 @@ class UserConfig {
 
     // 配置文件的监听
     this.watchConfigs((event, path) => {
+      console.log('TESTTEST', event, path);
       signale.debug(`[${event}] ${path}`);
       try {
         const newConfig = this.getConfig({

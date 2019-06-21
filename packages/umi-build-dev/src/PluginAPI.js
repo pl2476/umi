@@ -61,6 +61,7 @@ export default class PluginAPI {
       'onBuildSuccess',
       'onBuildSuccessAsync',
       'onBuildFail',
+      'onPrintUmiError',
       'addPageWatcher',
       'addEntryCode',
       'addEntryCodeAhead',
@@ -95,6 +96,7 @@ export default class PluginAPI {
       'addHTMLScript',
       'addHTMLStyle',
       'addHTMLHeadScript',
+      'addUmiExports',
       'modifyHTMLChunks',
       'onGenerateFiles',
       'onHTMLRebuild',
@@ -111,6 +113,7 @@ export default class PluginAPI {
       '_modifyBlockTarget',
       '_modifyCommand',
       '_modifyBlockNewRouteConfig',
+      'beforeBuildCompileAsync',
     ].forEach(method => {
       if (Array.isArray(method)) {
         this.registerMethod(...method);
@@ -158,15 +161,9 @@ export default class PluginAPI {
 
   registerGenerator(name, opts) {
     const { generators } = this.service;
-    assert(
-      typeof name === 'string',
-      `name should be supplied with a string, but got ${name}`,
-    );
+    assert(typeof name === 'string', `name should be supplied with a string, but got ${name}`);
     assert(opts && opts.Generator, `opts.Generator should be supplied`);
-    assert(
-      !(name in generators),
-      `Generator ${name} exists, please select another one.`,
-    );
+    assert(!(name in generators), `Generator ${name} exists, please select another one.`);
     generators[name] = opts;
   }
 
@@ -202,16 +199,12 @@ export default class PluginAPI {
       } else if (type === this.API_TYPE.ADD) {
         this.register(name, opts => {
           return (opts.memo || []).concat(
-            typeof args[0] === 'function'
-              ? args[0](opts.memo, opts.args)
-              : args[0],
+            typeof args[0] === 'function' ? args[0](opts.memo, opts.args) : args[0],
           );
         });
       } else if (type === this.API_TYPE.MODIFY) {
         this.register(name, opts => {
-          return typeof args[0] === 'function'
-            ? args[0](opts.memo, opts.args)
-            : args[0];
+          return typeof args[0] === 'function' ? args[0](opts.memo, opts.args) : args[0];
         });
       } else if (type === this.API_TYPE.EVENT) {
         this.register(name, opts => {
@@ -224,10 +217,7 @@ export default class PluginAPI {
   }
 
   addBabelRegister(files) {
-    assert(
-      Array.isArray(files),
-      `files for registerBabel must be Array, but got ${files}`,
-    );
+    assert(Array.isArray(files), `files for registerBabel must be Array, but got ${files}`);
     addBabelRegisterFiles(files, {
       cwd: this.service.cwd,
     });

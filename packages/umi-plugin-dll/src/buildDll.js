@@ -1,3 +1,4 @@
+/* eslint-disable import/no-dynamic-require */
 import { join } from 'path';
 import rimraf from 'rimraf';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
@@ -9,6 +10,8 @@ export default function(opts = {}) {
     paths,
     _resolveDeps,
     _: { pullAll, uniq },
+    UmiError,
+    printUmiError,
   } = api;
   const pkgFile = join(paths.cwd, 'package.json');
   const pkg = existsSync(pkgFile) ? require(pkgFile) : {}; // eslint-disable-line
@@ -16,7 +19,7 @@ export default function(opts = {}) {
     uniq(Object.keys(pkg.dependencies || {}).concat(include || [])),
     exclude,
   ).filter(dep => {
-    return dep !== 'umi' && !dep.startsWith('umi-plugin-');
+    return dep !== 'umi' && !dep.startsWith('umi-plugin-') && !dep.startsWith('@types/');
   });
   const webpack = require(_resolveDeps('af-webpack/webpack'));
   const files = uniq([
@@ -27,8 +30,8 @@ export default function(opts = {}) {
     'umi/redirect',
     'umi/router',
     'umi/withRouter',
-    'umi/_renderRoutes',
-    'umi/_createHistory',
+    'umi/lib/renderRoutes',
+    'umi/lib/createHistory',
     'react',
     'react-dom',
     'react-router-dom',
@@ -37,13 +40,8 @@ export default function(opts = {}) {
   const filesInfoFile = join(dllDir, 'filesInfo.json');
 
   if (existsSync(filesInfoFile)) {
-    if (
-      JSON.parse(readFileSync(filesInfoFile, 'utf-8')).join(', ') ===
-      files.join(', ')
-    ) {
-      console.log(
-        `[umi-plugin-dll] File list is equal, don't generate the dll file.`,
-      );
+    if (JSON.parse(readFileSync(filesInfoFile, 'utf-8')).join(', ') === files.join(', ')) {
+      console.log(`[umi-plugin-dll] File list is equal, don't generate the dll file.`);
       return Promise.resolve();
     }
   }
@@ -56,9 +54,7 @@ export default function(opts = {}) {
       babel: {},
     },
   });
-  const afWebpackConfig = require(_resolveDeps('af-webpack/getConfig')).default(
-    afWebpackOpts,
-  );
+  const afWebpackConfig = require(_resolveDeps('af-webpack/getConfig')).default(afWebpackOpts);
   const webpackConfig = {
     ...afWebpackConfig,
     entry: {
@@ -91,6 +87,7 @@ export default function(opts = {}) {
   };
 
   return new Promise((resolve, reject) => {
+    console.log('Building dll...');
     require(_resolveDeps('af-webpack/build')).default({
       webpackConfig,
       onSuccess() {
@@ -98,8 +95,19 @@ export default function(opts = {}) {
         writeFileSync(filesInfoFile, JSON.stringify(files), 'utf-8');
         resolve();
       },
-      onFail({ err }) {
+      onFail({ err, stats }) {
         rimraf.sync(dllDir);
+        printUmiError(
+          new UmiError({
+            message: err && err.message,
+            context: {
+              err,
+              stats,
+              dll: true,
+            },
+          }),
+          { detailsOnly: true },
+        );
         reject(err);
       },
     });

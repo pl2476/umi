@@ -6,7 +6,7 @@ import getRouteManager from '../getRouteManager';
 import getFilesGenerator from '../getFilesGenerator';
 
 export default function(api) {
-  const { service, config, log, debug } = api;
+  const { service, config, log, debug, printUmiError, UmiError } = api;
   const { cwd } = service;
 
   api.registerCommand(
@@ -22,6 +22,7 @@ export default function(api) {
       RoutesManager.fetchRoutes();
 
       const { port } = args;
+
       process.env.NODE_ENV = 'development';
       service.applyPlugins('onStart');
       service._applyPluginsAsync('onStartAsync').then(() => {
@@ -37,17 +38,11 @@ export default function(api) {
         // Add more service methods.
         service.restart = why => {
           if (!server) {
-            log.debug(
-              `Server is not ready, ${chalk.underline.cyan(
-                'api.restart',
-              )} does not work.`,
-            );
+            log.debug(`Server is not ready, ${chalk.underline.cyan('api.restart')} does not work.`);
             return;
           }
           if (why) {
-            log.pending(
-              `Since ${chalk.cyan.underline(why)}, try to restart server...`,
-            );
+            log.pending(`Since ${chalk.cyan.underline(why)}, try to restart server...`);
           } else {
             log.pending(`Try to restart server...`);
           }
@@ -89,11 +84,17 @@ export default function(api) {
           ._applyPluginsAsync('_beforeDevServerAsync')
           .then(() => {
             debug('start dev server with af-webpack/dev');
+            const { history = 'browser' } = service.config;
             require('af-webpack/dev').default({
               cwd,
               port,
+              history: typeof history === 'string' ? history : history[0],
               base: service.config.base,
               webpackConfig: service.webpackConfig,
+              // webpackConfig: [
+              //   service.webpackConfig,
+              //   ...(service.ssrWebpackConfig ? [service.ssrWebpackConfig] : []),
+              // ],
               proxy: service.config.proxy || {},
               contentBase: './path-do-not-exists',
               _beforeServerWithApp(app) {
@@ -101,7 +102,16 @@ export default function(api) {
                 service.applyPlugins('_beforeServerWithApp', { args: { app } });
               },
               beforeMiddlewares: service.applyPlugins('addMiddlewareAhead', {
-                initialValue: [],
+                initialValue: [
+                  ...(service.ssrWebpackConfig
+                    ? [
+                        require('webpack-dev-middleware')(
+                          require('af-webpack/webpack')(service.ssrWebpackConfig),
+                          {},
+                        ),
+                      ]
+                    : []),
+                ],
               }),
               afterMiddlewares: service.applyPlugins('addMiddleware', {
                 initialValue: [
@@ -116,11 +126,24 @@ export default function(api) {
                   args: { server: devServer },
                 });
               },
-              afterServer(devServer) {
+              afterServer(devServer, devServerPort) {
                 service.applyPlugins('afterDevServer', {
-                  args: { server: devServer },
+                  args: {
+                    server: devServer,
+                    devServerPort,
+                  },
                 });
                 startWatch();
+              },
+              onFail({ stats }) {
+                printUmiError(
+                  new UmiError({
+                    context: {
+                      stats,
+                    },
+                  }),
+                  { detailsOnly: true },
+                );
               },
               onCompileDone({ isFirstCompile, stats }) {
                 service.__chunks = stats.compilation.chunks;

@@ -52,9 +52,7 @@ function getPageModels(cwd, api) {
 
 function isSrcPath(path, api) {
   const { paths, winPath } = api;
-  return (
-    endWithSlash(winPath(path)) === endWithSlash(winPath(paths.absSrcPath))
-  );
+  return endWithSlash(winPath(path)) === endWithSlash(winPath(paths.absSrcPath));
 }
 
 export function getGlobalModels(api, shouldImportDynamic) {
@@ -79,6 +77,7 @@ export default function(api, opts = {}) {
     cwd,
     dirname(require.resolve('dva/package.json')),
   );
+  // eslint-disable-next-line import/no-dynamic-require
   const dvaVersion = require(join(dvaDir, 'package.json')).version;
 
   function getDvaJS() {
@@ -108,16 +107,10 @@ export default function(api, opts = {}) {
   }
 
   function getGlobalModelContent() {
-    return exclude(
-      getGlobalModels(api, shouldImportDynamic),
-      optsToArray(opts.exclude),
-    )
+    return exclude(getGlobalModels(api, shouldImportDynamic), optsToArray(opts.exclude))
       .map(path =>
         `
-    app.model({ namespace: '${basename(
-      path,
-      extname(path),
-    )}', ...(require('${path}').default) });
+    app.model({ namespace: '${basename(path, extname(path))}', ...(require('${path}').default) });
   `.trim(),
       )
       .join('\r\n');
@@ -135,21 +128,15 @@ app.use(require('../../${path}').default);
     if (opts.immer) {
       ret.push(
         `
-app.use(require('${winPath(require.resolve('dva-immer'))}').default());
+app.use(require('${winPath(require.resolve('dva-immer'))}')());
       `.trim(),
       );
     }
     return ret.join('\r\n');
   }
 
-  function generateDvaContainer() {
-    const tpl = join(__dirname, '../template/DvaContainer.js');
-    const tplContent = readFileSync(tpl, 'utf-8');
-    api.writeTmpFile('DvaContainer.js', tplContent);
-  }
-
   function generateInitDva() {
-    const tpl = join(__dirname, '../template/initDva.js');
+    const tpl = join(__dirname, '../template/dva.js.tpl');
     let tplContent = readFileSync(tpl, 'utf-8');
     const dvaJS = getDvaJS();
     if (dvaJS) {
@@ -165,17 +152,14 @@ app.use(require('${winPath(require.resolve('dva-immer'))}').default());
       .replace('<%= EnhanceApp %>', '')
       .replace('<%= RegisterPlugins %>', getPluginContent())
       .replace('<%= RegisterModels %>', getGlobalModelContent());
-    api.writeTmpFile('initDva.js', tplContent);
+    api.writeTmpFile('dva.js', tplContent);
   }
 
   api.onGenerateFiles(() => {
-    generateDvaContainer();
     generateInitDva();
   });
 
-  api.modifyRouterRootComponent(
-    `require('dva/router').routerRedux.ConnectedRouter`,
-  );
+  api.modifyRouterRootComponent(`require('dva/router').routerRedux.ConnectedRouter`);
 
   if (shouldImportDynamic) {
     api.addRouterImport({
@@ -203,18 +187,20 @@ app.use(require('${winPath(require.resolve('dva-immer'))}').default());
         extendStr = `/* webpackChunkName: ^${webpackChunkName}^ */`;
       }
       let ret = `
-_dvaDynamic({
-  <%= MODELS %>
-  component: () => import(${extendStr}'${importPath}'),
-  ${loadingOpts}
-})
+  __IS_BROWSER
+    ? _dvaDynamic({
+      <%= MODELS %>
+      component: () => import(${extendStr}'${importPath}'),
+      ${loadingOpts}
+    })
+    : require('${importPath}').default
       `.trim();
       const models = getPageModels(join(paths.absTmpDirPath, importPath), api);
       if (models && models.length) {
         ret = ret.replace(
           '<%= MODELS %>',
           `
-app: window.g_app,
+app: require('@tmp/dva').getApp(),
 models: () => [
   ${models
     .map(
@@ -291,7 +277,9 @@ models: () => [
 
   api.addEntryCodeAhead(
     `
-require('@tmp/initDva');
+const app = require('@tmp/dva')._onCreate();
+${api.config.disableGlobalVariables ? '' : `window.g_app = app;`}
+${api.config.ssr ? `app.router(() => <div />);\napp.start();` : ''}
   `.trim(),
   );
 }

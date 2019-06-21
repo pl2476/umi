@@ -1,4 +1,5 @@
 import jest from 'jest';
+import { options as CliOptions } from 'jest-cli/build/cli/args';
 import { join } from 'path';
 import { existsSync } from 'fs';
 
@@ -6,7 +7,8 @@ const debug = require('debug')('umi-test');
 
 process.env.NODE_ENV = 'test';
 
-export default function(opts = {}) {
+export default function(originOpts = {}) {
+  const opts = { ...originOpts };
   const { cwd = process.cwd(), moduleNameMapper } = opts;
   let transformInclude = opts.transformInclude || [];
   if (typeof transformInclude === 'string') {
@@ -21,6 +23,7 @@ export default function(opts = {}) {
 
   const {
     moduleNameMapper: userModuleNameMapper,
+    extraSetupFiles,
     ...restUserJestConfig
   } = userJestConfig;
 
@@ -29,6 +32,7 @@ export default function(opts = {}) {
     setupFiles: [
       require.resolve('./shim.js'),
       require.resolve('./setupTests.js'),
+      ...(extraSetupFiles || []),
     ],
     resolver: require.resolve('jest-pnp-resolver'),
     transform: {
@@ -36,7 +40,9 @@ export default function(opts = {}) {
       '\\.svg$': require.resolve('./transformers/fileTransformer'),
     },
     transformIgnorePatterns: [
-      `node_modules/(?!(umi|enzyme-adapter-react-16|${transformInclude.join(
+      // 加 [^/]*? 是为了兼容 tnpm 的目录结构
+      // 比如：_umi-test@1.5.5@umi-test
+      `node_modules/(?!([^/]*?umi|[^/]*?umi-test|[^/]*?enzyme-adapter-react-16|${transformInclude.join(
         '|',
       )})/)`,
     ],
@@ -56,6 +62,15 @@ export default function(opts = {}) {
   };
 
   delete opts.transformInclude;
+
+  // Convert alias option into real one
+  Object.keys(CliOptions).forEach(name => {
+    const { alias } = CliOptions[name] || {};
+    if (alias && opts[alias]) {
+      opts[name] = opts[alias];
+      delete opts[alias];
+    }
+  });
 
   return new Promise((resolve, reject) => {
     jest

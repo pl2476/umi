@@ -11,16 +11,10 @@ import Mustache from 'mustache';
 import globby from 'globby';
 import groupBy from 'lodash.groupby';
 
-const momentLocation = require
-  .resolve('moment/locale/zh-cn')
-  .replace(/zh\-cn\.js$/, '');
+const momentLocation = require.resolve('moment/locale/zh-cn').replace(/zh\-cn\.js$/, '');
 
 function getMomentLocale(lang, country) {
-  if (
-    existsSync(
-      join(momentLocation, `${lang}-${country.toLocaleLowerCase()}.js`),
-    )
-  ) {
+  if (existsSync(join(momentLocation, `${lang}-${country.toLocaleLowerCase()}.js`))) {
     return `${lang}-${country.toLocaleLowerCase()}`;
   }
   if (existsSync(join(momentLocation, `${lang}.js`))) {
@@ -91,10 +85,8 @@ const polyfillTargets = {
 export function isNeedPolyfill(targets = {}) {
   return (
     Object.keys(targets).find(key => {
-      return (
-        polyfillTargets[key.toLocaleLowerCase()] &&
-        polyfillTargets[key.toLocaleLowerCase()] >= targets[key]
-      );
+      const lowKey = key.toLocaleLowerCase();
+      return polyfillTargets[lowKey] && polyfillTargets[lowKey] >= targets[key];
     }) !== undefined
   );
 }
@@ -108,10 +100,9 @@ export default function(api, options = {}) {
       source: 'intl',
     });
   }
+  api.addRuntimePluginKey('locale');
 
-  api.addPageWatcher(
-    join(paths.absSrcPath, config.singular ? 'locale' : 'locales'),
-  );
+  api.addPageWatcher(join(paths.absSrcPath, config.singular ? 'locale' : 'locales'));
 
   api.onOptionChange(newOpts => {
     options = newOpts;
@@ -119,23 +110,15 @@ export default function(api, options = {}) {
   });
 
   api.addRendererWrapperWithComponent(() => {
-    const localeFileList = getLocaleFileList(
-      paths.absSrcPath,
-      paths.absPagesPath,
-      config.singular,
-    );
-    const wrapperTpl = readFileSync(
-      join(__dirname, '../template/wrapper.jsx.tpl'),
-      'utf-8',
-    );
+    const localeFileList = getLocaleFileList(paths.absSrcPath, paths.absPagesPath, config.singular);
+    const wrapperTpl = readFileSync(join(__dirname, '../template/wrapper.jsx.tpl'), 'utf-8');
     const defaultLocale = options.default || 'zh-CN';
     const [lang, country] = defaultLocale.split('-');
     const wrapperContent = Mustache.render(wrapperTpl, {
       localeList: localeFileList,
       antd: options.antd === undefined ? true : options.antd,
-      baseNavigator:
-        options.baseNavigator === undefined ? true : options.baseNavigator,
-      useLocalStorage: true,
+      baseNavigator: options.baseNavigator === undefined ? true : options.baseNavigator,
+      useLocalStorage: options.useLocalStorage || true,
       defaultLocale,
       defaultLang: lang,
       defaultAntdLocale: `${lang}_${country}`,

@@ -1,20 +1,41 @@
 /* eslint-disable no-undef, prefer-rest-params */
 const ReactIntl = require('react-intl');
+const React = require('react');
 
-function setLocale(lang) {
+let localeContext;
+
+function setLocale(lang, realReload = true) {
   if (lang !== undefined && !/^([a-z]{2})-([A-Z]{2})$/.test(lang)) {
     // for reset when lang === undefined
     throw new Error('setLocale lang format error');
   }
   if (getLocale() !== lang) {
+    window.g_lang = lang;
     window.localStorage.setItem('umi_locale', lang || '');
-    window.location.reload();
+    // 触发 context 的 reload
+    // 如果要刷新 location ，没必要进行 context 的 reload 了
+    if (localeContext && !realReload) {
+      localeContext.reloadAppLocale();
+    }
+    if (realReload) {
+      window.location.reload();
+    }
+    // chrome 不支持这个事件。所以人肉触发一下
+    if (window.dispatchEvent) {
+      const event = new Event('languagechange');
+      window.dispatchEvent(event);
+    }
   }
 }
 
 function getLocale() {
-  return window.g_lang;
+  const lang = window.localStorage.getItem('umi_locale');
+  return lang || window.g_lang;
 }
+
+const LangContext = React.createContext({
+  lang: getLocale(),
+});
 
 // init api methods
 let intl;
@@ -28,6 +49,7 @@ const intlApi = {};
   'formatRelative',
   'formatNumber',
   'formatPlural',
+  'LangContext',
   'now',
   'onError',
 ].forEach(methodName => {
@@ -52,10 +74,20 @@ function _setIntlObject(theIntl) {
   intl = theIntl;
 }
 
+/**
+ * 用于触发 context 的重新渲染 方法。可以实现不刷新进行切换语言
+ * @param {*} context
+ */
+function _setLocaleContext(context) {
+  localeContext = context;
+}
+
 module.exports = {
   ...ReactIntl,
   ...intlApi,
   setLocale,
   getLocale,
   _setIntlObject,
+  LangContext,
+  _setLocaleContext,
 };

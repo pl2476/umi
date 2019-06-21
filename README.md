@@ -2,10 +2,7 @@ English | [简体中文](./README_zh-CN.md)
 
 # umi
 
-[![NPM version](https://img.shields.io/npm/v/umi.svg?style=flat)](https://npmjs.org/package/umi)
-[![Build Status](https://img.shields.io/travis/umijs/umi.svg?style=flat)](https://travis-ci.org/umijs/umi)
-[![NPM downloads](http://img.shields.io/npm/dm/umi.svg?style=flat)](https://npmjs.org/package/umi)
-[![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lernajs.io/)
+[![NPM version](https://img.shields.io/npm/v/umi.svg?style=flat)](https://npmjs.org/package/umi) [![Build Status](https://img.shields.io/travis/umijs/umi.svg?style=flat)](https://travis-ci.org/umijs/umi) [![NPM downloads](http://img.shields.io/npm/dm/umi.svg?style=flat)](https://npmjs.org/package/umi) [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lernajs.io/)
 
 🌋 Pluggable enterprise-level react application framework.
 
@@ -21,7 +18,7 @@ English | [简体中文](./README_zh-CN.md)
 - 🚀 **High performance**, including PWA support, route-level code splitting, etc.
 - 💈 **Support for static export**, Suitable for environments without server
 - 🚄 **Fast dev startup**, including [dll](https://umijs.org/plugin/umi-plugin-react.html#dll) support with config etc.
-- 🐠 **Polyfill solution**, add JS and CSS polypill with [targets](https://umijs.org/config/#targets) config, lowest to IE9
+- 🐠 **Polyfill solution**, add JS and CSS polyfill with [targets](https://umijs.org/config/#targets) config, lowest to IE9
 - 🍁 **Support TypeScript**, including d.ts definition and `umi test`
 - 🌴 **Deep integration with [dva](https://dvajs.com/)**, including duck directory support, automatic loading of model, code splitting, etc
 - ⛄️ **Support MPA**，based on [umi-plugin-mpa](https://github.com/umijs/umi-plugin-mpa)
@@ -56,8 +53,7 @@ $ umi build
 
 ## Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
-<a href="https://github.com/umijs/umi/graphs/contributors"><img src="https://opencollective.com/umi/contributors.svg?width=890&button=false" /></a>
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)]. <a href="https://github.com/umijs/umi/graphs/contributors"><img src="https://opencollective.com/umi/contributors.svg?width=890&button=false" /></a>
 
 ## Community
 

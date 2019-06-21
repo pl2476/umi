@@ -155,6 +155,10 @@ interface ILog<T = string> {
   (message: T, ...messages: string[]): void;
 }
 
+interface IWriteTmpFile {
+  (file: string, content: string): void;
+}
+
 interface IWinPath {
   (path: string): string;
 }
@@ -207,6 +211,10 @@ interface IBeforeBlockWriting {
 
 interface IOnStart {
   (fn: () => void): void;
+}
+
+interface onPrintUmiError {
+  (args: { error: any; opts: object }): void;
 }
 
 interface IEventAsync {
@@ -335,13 +343,13 @@ interface IModifyRouteComponentArgs {
   component: string;
 }
 
-interface IPkg {
-  name: string;
-  version: string;
-  dependencies: {
+export interface IPkg {
+  name?: string;
+  version?: string;
+  dependencies?: {
     [prop: string]: string;
   };
-  devDependencies: {
+  devDependencies?: {
     [prop: string]: string;
   };
 }
@@ -422,9 +430,11 @@ export interface IApi {
   };
   winPath: IWinPath;
   debug: ILog;
+  writeTmpFile: IWriteTmpFile;
   findJS: IFind;
   findCSS: IFind;
   compatDirname: ICompatDirname;
+  UmiError: any;
 
   /**
    * Event class API
@@ -435,6 +445,7 @@ export interface IApi {
   afterDevServer: IAfterDevServer;
   beforeBlockWriting: IBeforeBlockWriting;
   onStart: IOnStart;
+  onPrintUmiError: onPrintUmiError;
   onStartAsync: IEventAsync;
   onDevCompileDone: IOnDevCompileDone;
   onOptionChange: IOnOptionChange;
@@ -450,6 +461,7 @@ export interface IApi {
    * https://umijs.org/plugin/develop.html#application-class-api
    */
   modifyDefaultConfig: IModify<object>;
+  addUmiExports: IAdd<object>;
   addPageWatcher: IAdd<string>;
   addHTMLMeta: IAdd<object, { route?: IRoute }>;
   addHTMLLink: IAdd<object, { route?: IRoute }>;
@@ -475,10 +487,7 @@ export interface IApi {
   modifyRouterRootComponent: IModify<string>;
   modifyWebpackConfig: IModify<Configuration>;
   modifyAFWebpackOpts: IModify<IAFWebpackConfig>;
-  chainWebpackConfig: IChangeWebpackConfig<
-    IWebpackChainConfig,
-    IAFWebpackConfig
-  >;
+  chainWebpackConfig: IChangeWebpackConfig<IWebpackChainConfig, IAFWebpackConfig>;
   addMiddleware: IAdd<IMiddlewareFunction>;
   addMiddlewareAhead: IAdd<IMiddlewareFunction>;
   addMiddlewareBeforeMock: IAdd<IMiddlewareFunction>;

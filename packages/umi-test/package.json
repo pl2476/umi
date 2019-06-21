@@ -1,6 +1,6 @@
 {
   "name": "umi-test",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "bin": {
     "umi-test": "./bin/umi-test.js"
   },
@@ -23,24 +23,26 @@
     "src"
   ],
   "dependencies": {
-    "@babel/core": "7.2.2",
-    "@babel/polyfill": "7.2.5",
+    "@babel/core": "7.4.5",
     "@babel/preset-typescript": "7.3.3",
     "babel-core": "7.0.0-bridge.0",
-    "babel-jest": "24.1.0",
-    "babel-plugin-module-resolver": "3.1.1",
-    "babel-preset-umi": "1.4.1",
+    "babel-jest": "^24.8.0",
+    "babel-plugin-module-resolver": "3.2.0",
+    "babel-preset-umi": "1.6.0",
+    "core-js": "3.1.4",
     "debug": "4.1.1",
-    "enzyme": "3.9.0",
-    "enzyme-adapter-react-16": "1.9.1",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.14.0",
     "identity-obj-proxy": "3.0.0",
-    "jest": "24.1.0",
-    "jest-pnp-resolver": "1.1.0",
-    "jest-resolve": "24.1.0",
-    "react": "16.8.3",
-    "react-dom": "16.8.3",
-    "typescript": "3.3.3",
-    "umi-utils": "1.4.1",
-    "yargs-parser": "13.0.0"
+    "jest": "^24.8.0",
+    "jest-cli": "^24.8.0",
+    "jest-pnp-resolver": "^1.2.0",
+    "jest-resolve": "^24.8.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "regenerator-runtime": "0.13.2",
+    "typescript": "^3.5.2",
+    "umi-utils": "1.5.0",
+    "yargs-parser": "13.1.1"
   }
 }

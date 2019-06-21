@@ -9,20 +9,21 @@ import clearConsole from './clearConsole';
 import errorOverlayMiddleware from './errorOverlayMiddleware';
 import send, { STARTING, DONE } from './send';
 import choosePort from './choosePort';
+import { isPlainObject } from 'lodash';
 
 const isInteractive = process.stdout.isTTY;
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 8000;
 const HOST = process.env.HOST || '0.0.0.0';
 const PROTOCOL = process.env.HTTPS ? 'https' : 'http';
-const CERT =
-  process.env.HTTPS && process.env.CERT
-    ? fs.readFileSync(process.env.CERT)
-    : '';
-const KEY =
-  process.env.HTTPS && process.env.KEY ? fs.readFileSync(process.env.KEY) : '';
+const CERT = process.env.HTTPS && process.env.CERT ? fs.readFileSync(process.env.CERT) : '';
+const KEY = process.env.HTTPS && process.env.KEY ? fs.readFileSync(process.env.KEY) : '';
 const noop = () => {};
 
 process.env.NODE_ENV = 'development';
+
+function getWebpackConfig(webpackConfig) {
+  return Array.isArray(webpackConfig) ? webpackConfig[0] : webpackConfig;
+}
 
 export default function dev({
   webpackConfig,
@@ -33,12 +34,18 @@ export default function dev({
   afterServer,
   contentBase,
   onCompileDone = noop,
+  onFail = noop,
   proxy,
   port,
+  history,
   base,
   serverConfig: serverConfigFromOpts = {},
 }) {
-  assert(webpackConfig, 'webpackConfig must be supplied');
+  assert(webpackConfig, 'webpackConfig should be supplied.');
+  assert(
+    isPlainObject(webpackConfig) || Array.isArray(webpackConfig),
+    'webpackConfig should be plain object or array.',
+  );
   choosePort(port || DEFAULT_PORT)
     .then(port => {
       if (port === null) {
@@ -50,7 +57,7 @@ export default function dev({
       let isFirstCompile = true;
       const IS_CI = !!process.env.CI;
       const SILENT = !!process.env.SILENT;
-      const urls = prepareUrls(PROTOCOL, HOST, port, base);
+      const urls = prepareUrls(PROTOCOL, HOST, port, base, history);
       compiler.hooks.done.tap('af-webpack dev', stats => {
         if (stats.hasErrors()) {
           // make sound
@@ -58,6 +65,7 @@ export default function dev({
           if (process.env.SYSTEM_BELL !== 'none') {
             process.stdout.write('\x07');
           }
+          onFail({ stats });
           return;
         }
 
@@ -101,7 +109,7 @@ export default function dev({
         headers: {
           'access-control-allow-origin': '*',
         },
-        publicPath: webpackConfig.output.publicPath,
+        publicPath: getWebpackConfig(webpackConfig).output.publicPath,
         watchOptions: {
           ignored: /node_modules/,
         },
@@ -129,7 +137,7 @@ export default function dev({
           });
         },
         ...serverConfigFromOpts,
-        ...(webpackConfig.devServer || {}),
+        ...(getWebpackConfig(webpackConfig).devServer || {}),
       };
       const server = new WebpackDevServer(compiler, serverConfig);
 
@@ -156,7 +164,7 @@ export default function dev({
         console.log(chalk.cyan('Starting the development server...\n'));
         send({ type: STARTING });
         if (afterServer) {
-          afterServer(server);
+          afterServer(server, port);
         }
       });
     })

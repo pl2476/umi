@@ -8,8 +8,8 @@ sidebarDepth: 2
 
 ### plugins
 
-* Type: `Array`
-* Default: `[]`
+- Type: `Array`
+- Default: `[]`
 
 Specify the plugins.
 
@@ -34,10 +34,13 @@ If the plugin has parameters, it is configured as an array. The first item is th
 export default {
   plugins: [
     // 有参数
-    ['umi-plugin-react', {
-      dva: true,
-      antd: true,
-    }],
+    [
+      'umi-plugin-react',
+      {
+        dva: true,
+        antd: true,
+      },
+    ],
     './plugin',
   ],
 };
@@ -45,14 +48,12 @@ export default {
 
 ### routes
 
-* Type: `Array`
-* Default: `null`
+- Type: `Array`
+- Default: `null`
 
 Configure routing.
 
-umi 的路由基于 [react-router](https://reacttraining.com/react-router/web/guides/quick-start) 实现，配置和 react-router@4 基本一致，详见[路由配置](../guide/router.html)章节。
-
-Umi's routing is based on [react-router](https://reacttraining.com/react-router/web/guides/quick-start), and the configuration is basically the same as react-router@4. Checkout [Routing Configuration](. ./guide/router.html) chapter for details.
+Umi's routing is based on [react-router](https://reacttraining.com/react-router/web/guides/quick-start), and the configuration is basically the same as react-router@4. Checkout [Routing Configuration](../guide/router.html) chapter for details.
 
 ```js
 export default {
@@ -76,8 +77,8 @@ Notice:
 
 ### disableRedirectHoist
 
-* Type:`Boolean`
-* Default: `false`
+- Type:`Boolean`
+- Default: `false`
 
 For some reason, we hoist all redirect when parsing the route config, but this caused some problems, so add this configuration to disable redirect hoist.
 
@@ -89,8 +90,8 @@ export default {
 
 ### history
 
-* Type: `String | [String, Object]`
-* Default: `browser`
+- Type: `String | [String, Object]`
+- Default: `browser`
 
 Specify the history type, including `browser`, `hash` and `memory`.
 
@@ -104,65 +105,65 @@ export default {
 
 ### outputPath
 
-* Type: `String`
-* Default: `./dist`
+- Type: `String`
+- Default: `./dist`
 
 Specifies the output path.
 
 ### base
 
-* Type: `String`
-* Default: `/`
+- Type: `String`
+- Default: `/`
 
 Specify the base of the react-router to be configured when deploying to a non-root directory.
 
 ### publicPath
 
-* Type: `String`
-* Default: `/`
+- Type: `String`
+- Default: `/`
 
 Specifies the publicPath of the webpack, pointing to the path where the static resource file is located.
 
 ### runtimePublicPath
 
-* Type: `Boolean`
-* Default: `false`
+- Type: `Boolean`
+- Default: `false`
 
 Use the `window.publicPath` specified in the HTML when the value is `true`.
 
 ### cssPublicPath <Badge text="2.2.5+"/>
 
-* Type: `String`
-* Default: same as `publicPath`
+- Type: `String`
+- Default: same as `publicPath`
 
 Specify an extra publicPath for CSS.
 
 ### mountElementId
 
-* Type: `String`
-* Default: `root`
+- Type: `String`
+- Default: `root`
 
 Specifies the mount point id which the react app will mount to.
 
 ### minimizer
 
-* Type: `String`
-* Default: `uglifyjs`
-* Options: `uglifyjs|terserjs`
+- Type: `String`
+- Default: `uglifyjs`
+- Options: `uglifyjs|terserjs`
 
 Which minimizer to use. UglifyJS does not support es6 while [terser](https://github.com/terser-js/terser) does.
 
 ### hash
 
-* Type: `Boolean`
-* Default: `false`
+- Type: `Boolean`
+- Default: `false`
 
 Whether to enable the hash file suffix.
 
 ### targets <Badge text="2.1.0+"/>
 
-* Type: `Object`
-* Default: `{ chrome: 49, firefox: 45, safari: 10, edge: 13, ios: 10 }`
+- Type: `Object`
+- Default: `{ chrome: 49, firefox: 45, safari: 10, edge: 13, ios: 10 }`
 
 Configuring the minimum version of browsers you want to compatible with, umi will automatically introduce polyfill and transform grammar. Configuration items will be merged to default values, so there is no need to give any duplicate configuration.
 
@@ -178,15 +179,15 @@ export default {
 
 ### context
 
-* Type: `Object`
-* Default: `{}`
+- Type: `Object`
+- Default: `{}`
 
 Configuring a global context will override the context in each page.
 
 ### exportStatic
 
-* Type: `Boolean | Object`
-* Default: `false`
+- Type: `Boolean | Object`
+- Default: `false`
 
 If set to `true` or `Object`, all routes are exported as static pages, otherwise only one index.html is output by default.
 
@@ -198,28 +199,28 @@ such as:
 
 ### exportStatic.htmlSuffix
 
-* Type: `Boolean`
-* Default: `false`
+- Type: `Boolean`
+- Default: `false`
 
 Enable the `.html` suffix.
 
 ### exportStatic.dynamicRoot
 
-* Type: `Boolean`
-* Default: `false`
+- Type: `Boolean`
+- Default: `false`
 
 Deploy to any path.
 
 ### singular
 
-* Type: `Boolean`
-* Default: `false`
+- Type: `Boolean`
+- Default: `false`
 
 If set to `true`, enable the directory for singular mode.
 
-* src/layout/index.js
-* src/page
-* model (if umi-plugin-dva plugin is enabled)
+- src/layout/index.js
+- src/page
+- model (if umi-plugin-dva plugin is enabled)
 
 ### mock.exclude <Badge text="2.4.5+"/>
 
@@ -233,13 +234,68 @@ e.g. exclue all files and directorys starts with `_`,
 ```js
 export default {
   mock: {
-    exclude: [
-      'mock/**/_*.js',
-      'mock/_*/**/*.js',
-    ],
-  }
+    exclude: ['mock/**/_*.js', 'mock/_*/**/*.js'],
+  },
+};
+```
+
+### block <Badge text="2.7.0+"/>
+
+- Type: `Object`
+- Default: `{ defaultGitUrl: "https://github.com/umijs/umi-blocks" }`
+
+```js
+export default {
+  block: {
+    defaultGitUrl: 'https://github.com/ant-design/pro-blocks',
+    npmClient: 'cnpm',
+  },
+};
+```
+
+### ssr <Badge text="beta" type="warn"/> <Badge text="2.8.0+"/>
+
+- Type: `Boolean | Object`
+- Default: `false`
+
+Configure whether to enable Server-Side Render, which is off by default.
+
+When enabled, `umi.server.js` file is also generated when the client static file is generated.
+
+```js
+export default {
+  ssr: true,
+  // 需要开启
+  manifest: {},
+};
+```
+
+Use the following in Node.js:
+
+```js
+// Return the rendered html fragment according to the ctx.req.url
+async function UmiServerRender(ctx) {
+  // mock a window object
+  global.window = {};
+  // require module
+  const serverRender = require('./dist/umi.server');
+  // export react-dom/server to avoid React hooks ssr error
+  const { ReactDOMServer } = serverRender;
+
+  const {
+    // Current root container element
+    rootContainer,
+    // Document html Element = rootContainer + template Element
+    htmlElement,
+  } = await serverRender.default(ctx);
+
+  // Render the element into html
+  const ssrHtml = ReactDOMServer.renderToString(htmlElement);
+  return ssrHtml;
 }
 ```
+
+[using Pre-Rendering](/plugin/umi-plugin-prerender.html), [umi-example-ssr-with-egg](https://github.com/umijs/umi-example-ssr-with-egg)
 
 ## webpack
 
@@ -253,15 +309,15 @@ such as:
 chainWebpack(config, { webpack }) {
   // Set alias
   config.resolve.alias.set('a', 'path/to/a');
-  
+
   // Delete progress bar plugin
   config.plugins.delete('progress');
 }
 ```
+
 ### theme
 
-The configuration theme is actually equipped with the less variable. Support for both object and string types, the string needs to point to a file that returns the configuration.
-such as:
+The configuration theme is actually equipped with the less variable. Support for both object and string types, the string needs to point to a file that returns the configuration. such as:
 
 ```
 "theme": {
@@ -294,8 +350,7 @@ For example, after [ant-design-pro opens tree-shaking](https://github.com/ant-de
 
 ### define
 
-Passed to the code via the webpack's DefinePlugin , the value is automatically handled by `JSON.stringify`.
-such as:
+Passed to the code via the webpack's DefinePlugin , the value is automatically handled by `JSON.stringify`. such as:
 
 ```js
 "define": {
@@ -306,8 +361,7 @@ such as:
 
 ### externals
 
-Configure the [externals](https://webpack.js.org/configuration/externals/) property of webpack.
-such as:
+Configure the [externals](https://webpack.js.org/configuration/externals/) property of webpack. such as:
 
 ```js
 // Configure react and react-dom do not enter the code
@@ -373,7 +427,7 @@ const config = {
       mediaQuery: false,
     }),
   ],
-}
+};
 ```
 
 ### cssModulesExcludes
@@ -397,8 +451,7 @@ such as:
 
 ### proxy
 
-Configure the [proxy](https://webpack.js.org/configuration/dev-server/#devserver-proxy) property of webpack-dev-server.
-If you want to proxy requests to other servers, you can do this:
+Configure the [proxy](https://webpack.js.org/configuration/dev-server/#devserver-proxy) property of webpack-dev-server. If you want to proxy requests to other servers, you can do this:
 
 ```markup
 "proxy": {
@@ -418,8 +471,7 @@ Configure options for [node-sass](https://github.com/sass/node-sass#options). No
 
 ### manifest
 
-After configuration, asset-manifest.json will be generated and the option will be passed to [https://www.npmjs.com/package/webpack-manifest-plugin](https://www.npmjs.com/package/webpack-manifest-plugin).
-such as:
+After configuration, asset-manifest.json will be generated and the option will be passed to [https://www.npmjs.com/package/webpack-manifest-plugin](https://www.npmjs.com/package/webpack-manifest-plugin). such as:
 
 ```markup
 "manifest": {
@@ -444,13 +496,13 @@ Additional configuration items for [css-loader](https://github.com/webpack-contr
 Configuration for [autoprefixer](https://github.com/postcss/autoprefixer#options) .
 
 - Type: `Object`
-- Default: `{ browserslist, flexbox: 'no-2019' }`
+- Default: `{ browsers: DEFAULT_BROWSERS, flexbox: 'no-2019' }`
 
 If you want to be compatible with older versions of iOS Safari's flexbox, try to configure `flexbox: true`.
 
 ### uglifyJSOptions
 
-Configuration for [uglifyjs-webpack-plugin@1.x](https://github.com/webpack-contrib/uglifyjs-webpack-plugin/tree/version-1) .
+Configuration for [uglifyjs-webpack-plugin@2.x](https://github.com/webpack-contrib/uglifyjs-webpack-plugin/tree/master) .
 
 - Type: `Object` | `Function`
 - Default: [af-webpack/src/getConfig/uglifyOptions.js](https://github.com/umijs/umi/blob/master/packages/af-webpack/src/getConfig/uglifyOptions.js#L6)
@@ -474,7 +526,7 @@ e.g.
 ```js
 export default {
   uglifyJSOptions(opts) {
-    opts.compress.warning = true;
+    opts.uglifyOptions.compress.warning = true;
     return opts;
   },
 };
@@ -488,9 +540,6 @@ e.g.
 
 ```js
 export default {
-  browserslist: [
-    '> 1%',
-    'last 2 versions',
-  ],
+  browserslist: ['> 1%', 'last 2 versions'],
 };
 ```

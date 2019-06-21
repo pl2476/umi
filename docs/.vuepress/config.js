@@ -50,6 +50,7 @@ module.exports = {
                 'navigate-between-pages',
                 'config',
                 'html-template',
+                'module-processor',
               ],
             },
             {
@@ -118,6 +119,7 @@ module.exports = {
                 'navigate-between-pages',
                 'config',
                 'html-template',
+                'module-processor',
               ],
             },
             {
@@ -149,7 +151,7 @@ module.exports = {
             {
               title: '官方插件',
               collapsable: false,
-              children: ['umi-plugin-react'],
+              children: ['umi-plugin-react', '@umijs/plugin-prerender'],
             },
             {
               title: '插件开发',

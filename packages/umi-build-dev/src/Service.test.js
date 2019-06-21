@@ -1,4 +1,5 @@
 import { join } from 'path';
+import pick from 'lodash/pick';
 import Service from './Service';
 
 process.env.UMI_TEST = true;
@@ -77,9 +78,7 @@ describe('Service', () => {
     ];
     expect(() => {
       service.initPlugins();
-    }).toThrow(
-      /The first argument for api.onOptionChange should be function in/,
-    );
+    }).toThrow(/The first argument for api.onOptionChange should be function in/);
   });
 
   it('applyPlugins and register', () => {
@@ -256,9 +255,7 @@ describe('Service', () => {
                 memo +
                 args +
                 1 +
-                (typeof userArgs[0] === 'function'
-                  ? userArgs[0]({ memo, args })
-                  : userArgs[0])
+                (typeof userArgs[0] === 'function' ? userArgs[0]({ memo, args }) : userArgs[0])
               );
             },
           });
@@ -324,6 +321,7 @@ describe('Service', () => {
         id: 'user:a',
         apply: api => {
           api.onOptionChange((...args) => {
+            // eslint-disable-next-line prefer-destructuring
             newOption = args[0];
           });
         },
@@ -408,6 +406,7 @@ describe('Service', () => {
             id: 'a',
             apply(api) {
               api.onOptionChange((...args) => {
+                // eslint-disable-next-line prefer-destructuring
                 newOption = args[0];
               });
             },
@@ -421,5 +420,30 @@ describe('Service', () => {
     });
     expect(newOption).toEqual({ a: 'b' });
     expect(service.plugins[1].opts).toEqual({ a: 'b' });
+  });
+
+  it('runCommand ssr', () => {
+    const service = new Service({
+      cwd: join(fixtures, 'plugin-ssr'),
+    });
+    const callback = jest.fn(() => {});
+    service.registerCommand(
+      'build',
+      {
+        webpack: {},
+      },
+      callback,
+    );
+    service.runCommand('build');
+
+    expect(service.config).toEqual({ ssr: true, manifest: {} });
+    expect(service.webpackConfig).toBeTruthy();
+    expect(
+      pick(service.ssrWebpackConfig.output, ['libraryTarget', 'filename', 'chunkFilename']),
+    ).toEqual({
+      libraryTarget: 'commonjs2',
+      filename: '[name].server.js',
+      chunkFilename: '[name].server.async.js',
+    });
   });
 });

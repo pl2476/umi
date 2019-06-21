@@ -304,6 +304,13 @@ dev server 启动之前。
 
 dev server 启动之后。
 
+```js
+api.afterDevServer(({serve, devServerPort}) => {
+  // 你可以在这里取到服务监听的实际端口号
+  console.log(devServerPort);
+});
+```
+
 ### onStart
 
 `umi dev` 或者 `umi build` 开始时触发。
@@ -331,6 +338,16 @@ export default (api, defaultOpts = { immer: false }) => {
 };
 ```
 
+### beforeBuildCompileAsync
+
+在 Umi 调用 `af-webpack/build` 进行一次构建之前
+
+  ```js
+api.beforeBuildCompileAsync(async () => {
+  yield delay(1000);
+});
+```
+
 ### onBuildSuccess
 
 在 `umi build` 成功时候。主要做一些构建产物的处理。
@@ -347,7 +364,7 @@ onBuildSuccess 的异步版。
 
 ```js
 api.onBuildSuccessAsync(async ({ stats }) => {
-  yield delay(1000);
+  await delay(1000);
   console.log(stats);
 });
 ```
@@ -373,7 +390,7 @@ api.onPatchRoute({ route } => {
   // route:
   // {
   //   path: '/xxx',
-  //   Routes: [] 
+  //   Routes: []
   // }
 })
 ```
@@ -578,6 +595,37 @@ api.addEntryCodeAhead(`
 ### addRendererWrapperWithModule
 
 在挂载 <App/> 前执行一个 Module，支持异步。
+
+## addUmiExports
+
+支持 `umi` 添加导出
+
+```js
+// export all
+// 生成：export * from 'dva';
+api.addUmiExports([
+  {
+    exportAll: true,
+    source: 'dva'
+  },
+]);
+// export 部分
+// 生成：export { connect } from 'dva';
+api.addUmiExports([
+  {
+    specifiers: ['connect'],
+    source: 'dva',
+  },
+]);
+// 支持更名
+// 生成：export { default as dva } from 'dva';
+api.addUmiExports([
+  {
+    specifiers: [{ local: 'default', exported: 'dva' }],
+    source: 'dva',
+  },
+]);
+```
 
 ### modifyEntryRender
 

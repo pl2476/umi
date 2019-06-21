@@ -22,6 +22,7 @@ export default function(opts) {
 
   // entry
   if (opts.entry) {
+    // eslint-disable-next-line guard-for-in
     for (const key in opts.entry) {
       const entry = webpackConfig.entry(key);
       makeArray(opts.entry[key]).forEach(file => {
@@ -65,6 +66,7 @@ export default function(opts) {
     ]);
 
   if (opts.alias) {
+    // eslint-disable-next-line guard-for-in
     for (const key in opts.alias) {
       webpackConfig.resolve.alias.set(key, opts.alias[key]);
     }
@@ -92,6 +94,7 @@ export default function(opts) {
     .exclude
       .add(/\.json$/)
       .add(/\.(js|jsx|ts|tsx|mjs|wasm)$/)
+      .add(/\.(graphql|gql)$/)
       .add(/\.(css|less|scss|sass)$/);
   if (opts.urlLoaderExcludes) {
     opts.urlLoaderExcludes.forEach(exclude => {
@@ -196,8 +199,7 @@ export default function(opts) {
 
   // module -> extraBabelIncludes
   // suport es5ImcompatibleVersions
-  const extraBabelIncludes = opts.extraBabelIncludes || [];
-  extraBabelIncludes.push(a => {
+  const extraBabelIncludes = (opts.extraBabelIncludes || []).concat(a => {
     if (!a.includes('node_modules')) return false;
     const pkgPath = getPkgPath(a);
     return shouldTransform(pkgPath);
@@ -251,6 +253,16 @@ export default function(opts) {
           ...(opts.typescript || {}),
         });
 
+  // module -> gql, graphql
+  webpackConfig.module
+  .rule('graphql')
+    .test(/\.(graphql|gql)$/)
+    .exclude
+      .add(/node_modules/)
+      .end()
+    .use('graphql-tag-loader')
+    .loader('graphql-tag/loader');
+
   // module -> css
   require('./css').default(webpackConfig, opts);
 
@@ -289,7 +301,7 @@ export default function(opts) {
   if (process.env.ANALYZE) {
     webpackConfig
       .plugin('bundle-analyzer')
-      .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin, [
+      .use(require('umi-webpack-bundle-analyzer').BundleAnalyzerPlugin, [
         {
           analyzerMode: 'server',
           analyzerPort: process.env.ANALYZE_PORT || 8888,
@@ -299,6 +311,20 @@ export default function(opts) {
           statsFilename: process.env.ANALYZE_DUMP || 'stats.json',
         },
       ]);
+  }
+
+  // plugins -> analyze report
+  if (process.env.ANALYZE_REPORT) {
+    webpackConfig.plugin('bundle-analyzer-reporter')
+      .use(require('umi-webpack-bundle-analyzer').BundleAnalyzerPlugin, [
+        {
+          analyzerMode: 'disabled',  // 关闭 analyzer server
+          generateReportFile: true,  // 开启报告生成功能
+          reportDepth: 2,            // 裁剪深度 2
+          reportDir: process.cwd(),
+          statsFilename: process.env.ANALYZE_DUMP || 'bundlestats.json' // 默认生成到 bundlestats.json
+        }
+    ]);
   }
 
   if (process.env.DUPLICATE_CHECKER) {

@@ -24,10 +24,8 @@ export default function(api) {
           validate,
           onChange(newConfig) {
             try {
-              debug(
-                `Config ${name} changed to ${JSON.stringify(newConfig[name])}`,
-              );
-            } catch (e) {}
+              debug(`Config ${name} changed to ${JSON.stringify(newConfig[name])}`);
+            } catch (e) {} // eslint-disable-line no-empty
             if (name === 'proxy') {
               global.g_umi_reloadProxy(newConfig[name]);
             } else {
@@ -79,36 +77,14 @@ export default function(api) {
         ),
       )
       .set('@', paths.absSrcPath)
-      .set('@tmp', paths.absTmpDirPath)
-      .set('umi/link', join(process.env.UMI_DIR, 'lib/link.js'))
-      .set('umi/dynamic', join(process.env.UMI_DIR, 'lib/dynamic.js'))
-      .set('umi/navlink', join(process.env.UMI_DIR, 'lib/navlink.js'))
-      .set('umi/redirect', join(process.env.UMI_DIR, 'lib/redirect.js'))
-      .set('umi/prompt', join(process.env.UMI_DIR, 'lib/prompt.js'))
-      .set('umi/router', join(process.env.UMI_DIR, 'lib/router.js'))
-      .set('umi/withRouter', join(process.env.UMI_DIR, 'lib/withRouter.js'))
-      .set(
-        'umi/_renderRoutes',
-        join(process.env.UMI_DIR, 'lib/renderRoutes.js'),
-      )
-      .set(
-        'umi/_createHistory',
-        join(process.env.UMI_DIR, 'lib/createHistory.js'),
-      )
-      .set(
-        'umi/_runtimePlugin',
-        join(process.env.UMI_DIR, 'lib/runtimePlugin.js'),
-      );
+      .set('@tmp', paths.absTmpDirPath);
   });
 
+  /* eslint-disable import/no-dynamic-require */
   api.addVersionInfo([
     `react@${require(join(reactDir, 'package.json')).version} (${reactDir})`,
-    `react-dom@${
-      require(join(reactDOMDir, 'package.json')).version
-    } (${reactDOMDir})`,
-    `react-router@${
-      require(join(reactRouterDir, 'package.json')).version
-    } (${reactRouterDir})`,
+    `react-dom@${require(join(reactDOMDir, 'package.json')).version} (${reactDOMDir})`,
+    `react-router@${require(join(reactRouterDir, 'package.json')).version} (${reactRouterDir})`,
     `react-router-dom@${
       require(join(reactRouterDOMDir, 'package.json')).version
     } (${reactRouterDOMDir})`,
@@ -116,22 +92,20 @@ export default function(api) {
       require(join(reactRouterConfigDir, 'package.json')).version
     } (${reactRouterConfigDir})`,
   ]);
+  /* eslint-enable import/no-dynamic-require */
 
-  api.modifyAFWebpackOpts(memo => {
+  api.modifyAFWebpackOpts((memo, args = {}) => {
+    const { ssr } = args;
     const isDev = process.env.NODE_ENV === 'development';
 
     const entryScript = join(cwd, `./${paths.tmpDirPath}/umi.js`);
-    const setPublicPathFile = join(
-      __dirname,
-      '../../../template/setPublicPath.js',
-    );
+    const setPublicPathFile = join(__dirname, '../../../template/setPublicPath.js');
     const setPublicPath =
-      config.runtimePublicPath ||
-      (config.exportStatic && config.exportStatic.dynamicRoot);
+      config.runtimePublicPath || (config.exportStatic && config.exportStatic.dynamicRoot);
     const entry = isDev
       ? {
           umi: [
-            ...(process.env.HMR === 'none' ? [] : [webpackHotDevClientPath]),
+            ...(process.env.HMR === 'none' || ssr ? [] : [webpackHotDevClientPath]),
             ...(setPublicPath ? [setPublicPathFile] : []),
             entryScript,
           ],
@@ -140,14 +114,17 @@ export default function(api) {
           umi: [...(setPublicPath ? [setPublicPathFile] : []), entryScript],
         };
 
-    const targets = {
-      chrome: 49,
-      firefox: 64,
-      safari: 10,
-      edge: 13,
-      ios: 10,
-      ...(config.targets || {}),
-    };
+    const targets = ssr
+      ? // current running node
+        { node: true }
+      : {
+          chrome: 49,
+          firefox: 64,
+          safari: 10,
+          edge: 13,
+          ios: 10,
+          ...(config.targets || {}),
+        };
 
     // Transform targets to browserslist for autoprefixer
     const browserslist =
@@ -160,6 +137,11 @@ export default function(api) {
         .map(key => {
           return `${key} >= ${targets[key]}`;
         });
+
+    const plugins = [];
+    if (process.env.BABEL_POLYFILL !== 'none') {
+      plugins.push(require.resolve('./lockCoreJSVersionPlugin'));
+    }
 
     return {
       ...memo,
@@ -176,17 +158,21 @@ export default function(api) {
             require.resolve('babel-preset-umi'),
             {
               targets,
-              env: {
-                useBuiltIns: 'entry',
-                ...(config.treeShaking ? { modules: false } : {}),
-              },
+              env: ssr
+                ? {}
+                : {
+                    useBuiltIns: 'entry',
+                    corejs: 2,
+                    ...(config.treeShaking ? { modules: false } : {}),
+                  },
             },
           ],
         ],
-        plugins: [require.resolve('./lockCoreJSVersionPlugin')],
+        plugins,
       },
       define: {
         'process.env.BASE_URL': config.base || '/',
+        __IS_BROWSER: !ssr,
         __UMI_BIGFISH_COMPAT: process.env.BIGFISH_COMPAT,
         __UMI_HTML_SUFFIX: !!(
           config.exportStatic &&
@@ -195,11 +181,7 @@ export default function(api) {
         ),
         ...(config.define || {}),
       },
-      publicPath: isDev
-        ? '/'
-        : config.publicPath != null
-        ? config.publicPath
-        : '/',
+      publicPath: isDev && !config.ssr ? '/' : config.publicPath != null ? config.publicPath : '/',
     };
   });
 }

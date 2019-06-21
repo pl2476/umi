@@ -1,8 +1,4 @@
-import getMockData, {
-  normalizeConfig,
-  getMockFiles,
-  getMockConfigFromFiles,
-} from './getMockData';
+import getMockData, { normalizeConfig, getMockFiles, getMockConfigFromFiles } from './getMockData';
 
 const fixtures = `${__dirname}/fixtures`;
 
@@ -41,10 +37,7 @@ describe('umi-mock:getMockData', () => {
           },
         },
       });
-      expect(stripPrefix(files)).toEqual([
-        'normal/mock/a.js',
-        'normal/mock/b.js',
-      ]);
+      expect(stripPrefix(files)).toEqual(['normal/mock/a.js', 'normal/mock/b.js']);
     });
 
     it('mock in pages', () => {
@@ -92,43 +85,42 @@ describe('umi-mock:getMockData', () => {
   describe('normalizeConfig', () => {
     it('normal', () => {
       const config = normalizeConfig(
-        getMockConfigFromFiles([
-          `${fixtures}/mock-files/a.js`,
-          `${fixtures}/mock-files/b.js`,
-        ]),
+        getMockConfigFromFiles([`${fixtures}/mock-files/a.js`, `${fixtures}/mock-files/b.js`]),
       );
       expect(config.length).toEqual(2);
-      expect(Object.keys(config[0])).toEqual([
-        'method',
-        'path',
-        're',
-        'keys',
-        'handler',
-      ]);
+      expect(Object.keys(config[0])).toEqual(['method', 'path', 're', 'keys', 'handler']);
       expect(config[0].method).toEqual('get');
       expect(config[0].path).toEqual('/api/a');
       expect(config[0].keys).toEqual([]);
       expect(typeof config[0].handler).toEqual('function');
     });
 
+    it('with method', () => {
+      const config = normalizeConfig(
+        getMockConfigFromFiles([`${fixtures}/mock-files/with-method.js`]),
+      );
+      expect(config.length).toEqual(4);
+      expect(config[0].method).toEqual('get');
+      expect(config[0].path).toEqual('/api/get');
+      expect(config[1].method).toEqual('get');
+      expect(config[1].path).toEqual('/api/get2');
+      expect(config[2].method).toEqual('post');
+      expect(config[2].path).toEqual('/api/samepath');
+      expect(config[3].method).toEqual('get');
+      expect(config[3].path).toEqual('/api/samepath');
+    });
+
     it('conflicts', () => {
       const config = normalizeConfig(
-        getMockConfigFromFiles([
-          `${fixtures}/mock-files/a.js`,
-          `${fixtures}/mock-files/a_2.js`,
-        ]),
+        getMockConfigFromFiles([`${fixtures}/mock-files/a.js`, `${fixtures}/mock-files/a_2.js`]),
       );
       expect(config.length).toEqual(1);
     });
 
     it("throw error if value's type is string", () => {
       expect(() => {
-        normalizeConfig(
-          getMockConfigFromFiles([`${fixtures}/mock-files/string.js`]),
-        );
-      }).toThrow(
-        /mock value of \/api\/string should be function or object, but got string/,
-      );
+        normalizeConfig(getMockConfigFromFiles([`${fixtures}/mock-files/string.js`]));
+      }).toThrow(/mock value of \/api\/string should be function or object, but got string/);
     });
 
     it('with keys', () => {

@@ -11,11 +11,10 @@ export default function({ stack, message }, options = {}) {
     return message;
   }
 
-  // console.log(stack);
   const re = /at[^(]+\(([^:]+):(\d+):(\d+)\)/;
   const m = stack.match(re);
   if (m) {
-    const [_, file, line, column] = m;
+    const [, file, line, column] = m;
     if (!file.startsWith('.') && !file.startsWith('/')) {
       return message;
     }

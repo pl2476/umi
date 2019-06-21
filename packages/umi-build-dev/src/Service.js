@@ -7,6 +7,7 @@ import { assign, cloneDeep } from 'lodash';
 import { parse } from 'dotenv';
 import signale from 'signale';
 import { deprecate } from 'umi-utils';
+import { UmiError, printUmiError } from 'umi-core/lib/error';
 import getPaths from './getPaths';
 import getPlugins from './getPlugins';
 import PluginAPI from './PluginAPI';
@@ -33,6 +34,8 @@ export default class Service {
     this.pluginHooks = {};
     this.pluginMethods = {};
     this.generators = {};
+    this.UmiError = UmiError;
+    this.printUmiError = printUmiError;
 
     // resolve user config
     this.config = UserConfig.getConfig({
@@ -50,13 +53,23 @@ export default class Service {
     this.paths = getPaths(this);
   }
 
+  printUmiError(error, opts) {
+    this.applyPlugins('onPrintUmiError', {
+      args: {
+        error,
+        opts,
+      },
+    });
+    printUmiError(error, opts);
+  }
+
   resolvePlugins() {
     try {
       assert(
         Array.isArray(this.config.plugins || []),
-        `Configure item ${chalk.underline.cyan(
-          'plugins',
-        )} should be Array, but got ${chalk.red(typeof this.config.plugins)}`,
+        `Configure item ${chalk.underline.cyan('plugins')} should be Array, but got ${chalk.red(
+          typeof this.config.plugins,
+        )}`,
       );
       return getPlugins({
         cwd: this.cwd,
@@ -66,7 +79,7 @@ export default class Service {
       if (process.env.UMI_TEST) {
         throw new Error(e);
       } else {
-        signale.error(e);
+        this.printUmiError(e);
         process.exit(1);
       }
     }
@@ -104,6 +117,9 @@ plugin must export a function, e.g.
               'pkg',
               'paths',
               'routes',
+              // error handler
+              'UmiError',
+              'printUmiError',
               // dev methods
               'restart',
               'printError',
@@ -168,16 +184,9 @@ ${getCodeFrame(e, { cwd: this.cwd })}
 
     // Throw error for methods that can't be called after plugins is initialized
     this.plugins.forEach(plugin => {
-      [
-        'onOptionChange',
-        'register',
-        'registerMethod',
-        'registerPlugin',
-      ].forEach(method => {
+      ['onOptionChange', 'register', 'registerMethod', 'registerPlugin'].forEach(method => {
         plugin._api[method] = () => {
-          throw new Error(
-            `api.${method}() should not be called after plugin is initialized.`,
-          );
+          throw new Error(`api.${method}() should not be called after plugin is initialized.`);
         };
       });
     });
@@ -216,6 +225,7 @@ ${getCodeFrame(e, { cwd: this.cwd })}
     let memo = opts.initialValue;
     for (const hook of hooks) {
       const { fn } = hook;
+      // eslint-disable-next-line no-await-in-loop
       memo = await fn({
         memo,
         args: opts.args,
@@ -233,6 +243,7 @@ ${getCodeFrame(e, { cwd: this.cwd })}
         debug(`load env from ${path}`);
         const parsed = parse(readFileSync(path, 'utf-8'));
         Object.keys(parsed).forEach(key => {
+          // eslint-disable-next-line no-prototype-builtins
           if (!process.env.hasOwnProperty(key)) {
             process.env[key] = parsed[key];
           }
@@ -285,10 +296,7 @@ ${getCodeFrame(e, { cwd: this.cwd })}
       opts = null;
     }
     opts = opts || {};
-    assert(
-      !(name in this.commands),
-      `Command ${name} exists, please select another one.`,
-    );
+    assert(!(name in this.commands), `Command ${name} exists, please select another one.`);
     this.commands[name] = { fn, opts };
   }
 
@@ -317,6 +325,11 @@ ${getCodeFrame(e, { cwd: this.cwd })}
     if (opts.webpack) {
       // webpack config
       this.webpackConfig = require('./getWebpackConfig').default(this);
+      if (this.config.ssr) {
+        this.ssrWebpackConfig = require('./getWebpackConfig').default(this, {
+          ssr: this.config.ssr,
+        });
+      }
     }
 
     return fn(args);

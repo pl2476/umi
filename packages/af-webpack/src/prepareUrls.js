@@ -3,20 +3,29 @@ import address from 'address';
 import url from 'url';
 import chalk from 'chalk';
 
-export default function prepareUrls(protocol, host, port, pathname) {
+export default function prepareUrls(protocol, host, port, pathname, history) {
+
+  // if history type is hash, add the base to hash part rather than pathname.
+  const baseInfo = history === 'hash' ? {
+    protocol,
+    pathname: '/',
+    hash: pathname || '',
+  } : {
+    protocol,
+    pathname: pathname || '/',
+  };
+
   const formatUrl = hostname =>
     url.format({
-      protocol,
+      ...baseInfo,
       hostname,
       port,
-      pathname: pathname || '/',
     });
   const prettyPrintUrl = hostname =>
     url.format({
-      protocol,
+      ...baseInfo,
       hostname,
       port: chalk.bold(port),
-      pathname: pathname || '/',
     });
 
   const isUnspecifiedHost = host === '0.0.0.0' || host === '::';
@@ -29,11 +38,7 @@ export default function prepareUrls(protocol, host, port, pathname) {
       if (lanUrlForConfig) {
         // Check if the address is a private ip
         // https://en.wikipedia.org/wiki/Private_network#Private_IPv4_address_spaces
-        if (
-          /^10[.]|^30[.]|^172[.](1[6-9]|2[0-9]|3[0-1])[.]|^192[.]168[.]/.test(
-            lanUrlForConfig,
-          )
-        ) {
+        if (/^10[.]|^30[.]|^172[.](1[6-9]|2[0-9]|3[0-1])[.]|^192[.]168[.]/.test(lanUrlForConfig)) {
           // Address is private, format it for later use
           lanUrlForTerminal = prettyPrintUrl(lanUrlForConfig);
         } else {

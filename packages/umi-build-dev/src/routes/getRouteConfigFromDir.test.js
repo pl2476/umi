@@ -40,9 +40,7 @@ describe('getRouteConfigFromDir', () => {
       cwd: join(__dirname, 'fixtures', 'index-index'),
       absPagesPath: join(__dirname, 'fixtures', 'index-index'),
     });
-    expect(routes).toEqual([
-      { path: '/', exact: true, component: './index/index.js' },
-    ]);
+    expect(routes).toEqual([{ path: '/', exact: true, component: './index/index.js' }]);
   });
 
   it('remove last index', () => {
@@ -65,16 +63,13 @@ describe('getRouteConfigFromDir', () => {
     expect(routes).toEqual([{ path: '/a', exact: true, component: './a.js' }]);
   });
 
-  it('dynamic route', () => {
-    const routes = getRoute({
-      cwd: join(__dirname, 'fixtures', 'dynamic-route'),
-      absPagesPath: join(__dirname, 'fixtures', 'dynamic-route'),
-    });
-    expect(routes).toEqual([
-      { path: '/:d', exact: true, component: './$d/index.js' },
-      { path: '/:b/:c', exact: true, component: './$b/$c.js' },
-      { path: '/:a', exact: true, component: './$a.js' },
-    ]);
+  it('multiple dynamic route error', () => {
+    expect(() => {
+      getRoute({
+        cwd: join(__dirname, 'fixtures', 'multiple-dynamic-route-error'),
+        absPagesPath: join(__dirname, 'fixtures', 'multiple-dynamic-route-error'),
+      });
+    }).toThrow(/We should not have multiple dynamic routes under a directory./);
   });
 
   it('optional route', () => {
@@ -178,12 +173,7 @@ describe('getRouteConfigFromDir', () => {
     const routes = getRoute({
       cwd: join(__dirname, 'fixtures', 'global-layout-not-found'),
       absPagesPath: join(__dirname, 'fixtures', 'global-layout-not-found'),
-      absSrcPath: join(
-        __dirname,
-        'fixtures',
-        'global-layout-not-found',
-        '_src',
-      ),
+      absSrcPath: join(__dirname, 'fixtures', 'global-layout-not-found', '_src'),
     });
     expect(routes).toEqual([{ path: '/a', exact: true, component: './a.js' }]);
   });
@@ -193,9 +183,7 @@ describe('getRouteConfigFromDir', () => {
       cwd: join(__dirname, 'fixtures', 'route-directory'),
       absPagesPath: join(__dirname, 'fixtures', 'route-directory'),
     });
-    expect(routes).toEqual([
-      { path: '/a', exact: true, component: './a/page.js' },
-    ]);
+    expect(routes).toEqual([{ path: '/a', exact: true, component: './a/page.js' }]);
   });
 
   xit('throw error when route directory conflict', () => {

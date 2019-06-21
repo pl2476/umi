@@ -6,8 +6,7 @@ import mkdirp from 'mkdirp';
 const debug = require('debug')('umi-build-dev:MaterialDownload');
 
 export function makeSureMaterialsTempPathExist(dryRun) {
-  const userHome =
-    process.env.NODE_ENV === 'test' ? '/Users/test' : require('user-home');
+  const userHome = process.env.NODE_ENV === 'test' ? '/Users/test' : require('user-home');
   const blocksTempPath = join(userHome, '.umi/blocks');
   if (dryRun) {
     return blocksTempPath;
@@ -92,16 +91,18 @@ export function parseGitUrl(url) {
   };
 }
 
-export function getParsedData(url) {
+export function getParsedData(url, blockConfig) {
   debug(`url: ${url}`);
   let realUrl;
+  const defaultGitUrl = blockConfig.defaultGitUrl || 'https://github.com/umijs/umi-blocks';
   if (isGitUrl(url)) {
     realUrl = url;
     debug('is git url');
   } else if (/^[\w]+[\w\-\/]*$/.test(url)) {
-    realUrl = `https://github.com/umijs/umi-blocks/tree/master/${url}`;
+    realUrl = `${defaultGitUrl}/tree/master/${url}`;
     debug(`will use ${realUrl} as the block url`);
-  } else if (/^[\.\/]/.test(url)) {
+  } else if (/^[\.\/]|^[c-zC-Z]:/.test(url)) {
+    // ^[c-zC-Z]:  目的是为了支持window下的绝对路径，比如 `C:\\Project\\umi`
     // locale path for test
     const sourcePath = resolve(process.cwd(), url);
     debug(`will use ${sourcePath} as the block url`);

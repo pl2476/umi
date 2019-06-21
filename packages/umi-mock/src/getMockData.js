@@ -16,13 +16,9 @@ function createHandler(method, path, handler) {
   return function(req, res, next) {
     if (BODY_PARSED_METHODS.includes(method)) {
       bodyParser.json({ limit: '5mb', strict: false })(req, res, () => {
-        bodyParser.urlencoded({ limit: '5mb', extended: true })(
-          req,
-          res,
-          () => {
-            sendData();
-          },
-        );
+        bodyParser.urlencoded({ limit: '5mb', extended: true })(req, res, () => {
+          sendData();
+        });
       });
     } else {
       sendData();
@@ -65,8 +61,8 @@ export function normalizeConfig(config) {
 function parseKey(key) {
   let method = 'get';
   let path = key;
-  if (key.indexOf(' ') > -1) {
-    const splited = key.split(' ');
+  if (/\s+/.test(key)) {
+    const splited = key.split(/\s+/);
     method = splited[0].toLowerCase();
     path = splited[1]; // eslint-disable-line
   }
@@ -110,11 +106,7 @@ export function getMockFiles(opts) {
       );
     }
 
-    debug(
-      `load mock data from ${absMockPath}, including files ${JSON.stringify(
-        mockFiles,
-      )}`,
-    );
+    debug(`load mock data from ${absMockPath}, including files ${JSON.stringify(mockFiles)}`);
     return mockFiles;
   }
 }

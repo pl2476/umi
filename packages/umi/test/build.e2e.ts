@@ -16,7 +16,11 @@ const servers = {} as IServer;
 let browser: any;
 let page: any;
 const fixtures = join(__dirname, 'fixtures/build');
-const dirs = readdirSync(fixtures).filter(dir => dir.charAt(0) !== '.');
+let dirs = readdirSync(fixtures).filter(dir => dir.charAt(0) !== '.');
+const testOnly = dirs.some(dir => /-only/.test(dir));
+if (testOnly) {
+  dirs = dirs.filter(dir => /-only/.test(dir));
+}
 
 beforeAll(async () => {
   for (const dir of dirs) {
@@ -71,9 +75,7 @@ async function build(cwd: string, name: string) {
 
 async function buildAndServe(name: string) {
   const cwd = join(fixtures, name);
-  const targetDist = name.includes('app_root')
-    ? join(cwd, 'root', 'dist')
-    : join(cwd, 'dist');
+  const targetDist = name.includes('app_root') ? join(cwd, 'root', 'dist') : join(cwd, 'dist');
   if (!existsSync(targetDist)) {
     await build(cwd, name);
   }

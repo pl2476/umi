@@ -6,11 +6,12 @@ const DEV_SCRIPT = join(__dirname, '../packages/umi/bin/umi.js');
 function startDevServer(opts = {}) {
   const { port, cwd } = opts;
   return new Promise(resolve => {
+    console.log(`Start dev server for ${cwd}`);
     const child = fork(DEV_SCRIPT, ['dev', '--port', port, '--cwd', cwd], {
       env: {
         ...process.env,
-        CLEAR_CONSOLE: 'none',
         BROWSER: 'none',
+        PROGRESS: 'none',
         UMI_DIR: dirname(require.resolve('../packages/umi/package')),
       },
     });
@@ -23,13 +24,7 @@ function startDevServer(opts = {}) {
 }
 
 function start() {
-  const devServers = [
-    [12341, '../packages/umi/test/fixtures/e2e/normal'],
-    [12342, '../packages/umi/test/fixtures/e2e/hashHistory'],
-    [12351, '../packages/umi-plugin-react/test/normal'],
-    [12352, '../packages/umi-plugin-react/test/with-dva'],
-    [12353, '../packages/umi-plugin-react/test/pwa'],
-  ];
+  const devServers = [[12341, '../packages/umi/test/fixtures/dev/normal']];
 
   return Promise.all(
     devServers.map(([port, cwd]) => {

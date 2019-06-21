@@ -4,14 +4,8 @@ const shell = require('shelljs');
 const { join } = require('path');
 const { fork } = require('child_process');
 
-if (
-  !shell
-    .exec('npm config get registry')
-    .stdout.includes('https://registry.npmjs.org/')
-) {
-  console.error(
-    'Failed: set npm registry to https://registry.npmjs.org/ first',
-  );
+if (!shell.exec('npm config get registry').stdout.includes('https://registry.npmjs.org/')) {
+  console.error('Failed: set npm registry to https://registry.npmjs.org/ first');
   process.exit(1);
 }
 
@@ -30,12 +24,6 @@ if (updatedRepos.length === 0) {
 const { code: buildCode } = shell.exec('npm run build');
 if (buildCode === 1) {
   console.error('Failed: npm run build');
-  process.exit(1);
-}
-
-const { code: uiBuildCode } = shell.exec('npm run ui:build');
-if (uiBuildCode === 1) {
-  console.error('Failed: npm run ui:build');
   process.exit(1);
 }
 
@@ -65,11 +53,7 @@ function publishToNpm() {
   updatedRepos.forEach(repo => {
     shell.cd(join(cwd, 'packages', repo));
     const { version } = require(join(cwd, 'packages', repo, 'package.json'));
-    if (
-      version.includes('-rc.') ||
-      version.includes('-beta.') ||
-      version.includes('-alpha.')
-    ) {
+    if (version.includes('-rc.') || version.includes('-beta.') || version.includes('-alpha.')) {
       console.log(`[${repo}] npm publish --tag next`);
       shell.exec(`npm publish --tag next`);
     } else {
